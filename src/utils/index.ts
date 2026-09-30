@@ -1,1 +1,1 @@
-// Export all utils
+export { default as config } from './config';
