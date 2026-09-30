@@ -1,1 +1,1 @@
-// Export all storage
+export { getDatabase, initializeDatabase, closeDatabase } from './database';
