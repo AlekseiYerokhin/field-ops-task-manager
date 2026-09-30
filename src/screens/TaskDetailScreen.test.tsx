@@ -74,14 +74,14 @@ describe('TaskDetailScreen', () => {
     } as any);
   });
 
-  it('renders loading state initially', () => {
-    render(<TaskDetailScreen />);
+  it('renders loading state initially', async () => {
+    await render(<TaskDetailScreen />);
 
     expect(screen.getByText('Loading...')).toBeTruthy();
   });
 
   it('renders task details after loading', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Test Task')).toBeTruthy();
@@ -91,7 +91,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('fetches task data on mount', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(mockedTaskRepository.getTask).toHaveBeenCalledWith('1');
@@ -100,7 +100,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays task location', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Test Location')).toBeTruthy();
@@ -108,7 +108,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays due date', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText(/Dec 31, 2024/)).toBeTruthy();
@@ -116,7 +116,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays attachments count', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('0 attachments')).toBeTruthy();
@@ -124,7 +124,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays history entries count', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('1 entries')).toBeTruthy();
@@ -132,7 +132,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays edit button', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Edit')).toBeTruthy();
@@ -140,7 +140,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays change status button', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Change Status')).toBeTruthy();
@@ -148,7 +148,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays delete button', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Delete')).toBeTruthy();
@@ -156,7 +156,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('navigates to edit screen when edit button is pressed', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       const editButton = screen.getByText('Edit');
@@ -169,7 +169,7 @@ describe('TaskDetailScreen', () => {
   it('shows error state when task not found', async () => {
     mockedTaskRepository.getTask.mockResolvedValue(null);
 
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Task not found')).toBeTruthy();
@@ -177,7 +177,7 @@ describe('TaskDetailScreen', () => {
   });
 
   it('displays section titles', async () => {
-    render(<TaskDetailScreen />);
+    await render(<TaskDetailScreen />);
 
     await waitFor(() => {
       expect(screen.getByText('Description')).toBeTruthy();

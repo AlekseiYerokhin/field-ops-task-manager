@@ -20,35 +20,35 @@ describe('SettingsScreen', () => {
     });
   });
 
-  it('renders the settings screen', () => {
-    render(<SettingsScreen />);
+  it('renders the settings screen', async () => {
+    await render(<SettingsScreen />);
 
     expect(screen.getByText('Appearance')).toBeTruthy();
     expect(screen.getByText('About')).toBeTruthy();
   });
 
-  it('displays dark mode toggle', () => {
-    render(<SettingsScreen />);
+  it('displays dark mode toggle', async () => {
+    await render(<SettingsScreen />);
 
     expect(screen.getByText('Dark Mode')).toBeTruthy();
   });
 
-  it('displays candidate code', () => {
-    render(<SettingsScreen />);
+  it('displays candidate code', async () => {
+    await render(<SettingsScreen />);
 
     expect(screen.getByText('Candidate Code')).toBeTruthy();
     expect(screen.getByText('SA-RN-7429')).toBeTruthy();
   });
 
-  it('displays version', () => {
-    render(<SettingsScreen />);
+  it('displays version', async () => {
+    await render(<SettingsScreen />);
 
     expect(screen.getByText('Version')).toBeTruthy();
     expect(screen.getByText('1.0.0')).toBeTruthy();
   });
 
-  it('calls toggleTheme when dark mode switch is pressed', () => {
-    render(<SettingsScreen />);
+  it('calls toggleTheme when dark mode switch is pressed', async () => {
+    await render(<SettingsScreen />);
 
     // Find the Switch component by its testID or by finding the parent View
     const switchElement = screen.getByText('Dark Mode').parent?.parent;
@@ -61,25 +61,25 @@ describe('SettingsScreen', () => {
     expect(screen.getByText('Dark Mode')).toBeTruthy();
   });
 
-  it('shows switch as on when theme is dark', () => {
+  it('shows switch as on when theme is dark', async () => {
     mockedUseThemeStore.mockReturnValue({
       theme: 'dark',
       toggleTheme: mockToggleTheme,
     });
 
-    render(<SettingsScreen />);
+    await render(<SettingsScreen />);
 
     // The switch value is determined by theme === 'dark'
     expect(screen.getByText('Dark Mode')).toBeTruthy();
   });
 
-  it('shows switch as off when theme is light', () => {
+  it('shows switch as off when theme is light', async () => {
     mockedUseThemeStore.mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
     });
 
-    render(<SettingsScreen />);
+    await render(<SettingsScreen />);
 
     expect(screen.getByText('Dark Mode')).toBeTruthy();
   });
