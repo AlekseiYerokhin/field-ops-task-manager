@@ -17,6 +17,5 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^react-native$': 'react-native-web',
-    '^test-renderer$': 'react-test-renderer',
   },
 };
