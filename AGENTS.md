@@ -40,3 +40,4 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 - **NEVER disable branch protection or push directly to main.** All changes must go through PR → CI → merge flow. If GitHub reports conflicts that don't exist locally, STOP and ask the user how to resolve them. Do not take shortcuts.
+- **Every component, screen, service, or utility must have a colocated test file** (`*.test.ts` or `*.test.tsx`) in the same directory. When creating new functionality, write tests that cover the component's behavior in its entirety. Tests are not optional — CI will fail without them.
