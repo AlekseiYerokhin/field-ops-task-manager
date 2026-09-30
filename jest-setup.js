@@ -1,7 +1,6 @@
 // Set up React Native globals
 global.__DEV__ = true;
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-console.log('Jest setup loaded, IS_REACT_ACT_ENVIRONMENT:', globalThis.IS_REACT_ACT_ENVIRONMENT);
 
 // Mock expo modules before they're imported
 jest.mock('expo-sqlite', () => ({
