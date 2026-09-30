@@ -25,3 +25,12 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Check formatting
+        run: npx prettier --check .
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Expo export check
+        run: npx expo export --platform web --output-dir ./dist
