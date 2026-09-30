@@ -11,6 +11,7 @@ interface TaskState {
   sortBy: SortBy;
   fetchTasks: () => Promise<void>;
   setSortBy: (sortBy: SortBy) => void;
+  deleteTask: (taskId: string) => Promise<void>;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -33,5 +34,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   setSortBy: (sortBy: SortBy) => {
     set({ sortBy });
     get().fetchTasks();
+  },
+
+  deleteTask: async (taskId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await taskRepository.deleteTask(taskId);
+      await get().fetchTasks();
+    } catch {
+      set({ error: 'Failed to delete task', isLoading: false });
+    }
   },
 }));
