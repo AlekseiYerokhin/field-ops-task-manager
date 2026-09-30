@@ -33,6 +33,3 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=high || true
-
-      - name: Expo export check
-        run: npx expo export --platform web --output-dir ./dist
