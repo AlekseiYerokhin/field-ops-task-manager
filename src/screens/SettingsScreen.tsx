@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 import { useThemeStore } from '../store';
 
 const CANDIDATE_CODE = 'SA-RN-7429';
