@@ -17,8 +17,10 @@ export default tseslint.config(
       'react-hooks': reactHooks,
     },
     languageOptions: {
-      ecmaFeatures: {
-        jsx: true,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
     settings: {
