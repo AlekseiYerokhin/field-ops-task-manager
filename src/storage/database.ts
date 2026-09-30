@@ -6,14 +6,14 @@ let db: SQLite.SQLiteDatabase | null = null;
 
 export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
-  
+
   db = await SQLite.openDatabaseAsync(DB_NAME);
   return db;
 }
 
 export async function initializeDatabase(): Promise<void> {
   const database = await getDatabase();
-  
+
   await database.execAsync(`
     PRAGMA journal_mode = WAL;
     

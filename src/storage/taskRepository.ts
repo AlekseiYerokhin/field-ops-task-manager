@@ -44,30 +44,32 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
 export async function getTask(id: string): Promise<Task | null> {
   const db = await getDatabase();
   const result = await db.getFirstAsync<any>('SELECT * FROM tasks WHERE id = ?', [id]);
-  
+
   if (!result) return null;
-  
+
   return mapRowToTask(result);
 }
 
-export async function getAllTasks(sortBy: 'createdAt' | 'dueDate' | 'status' = 'dueDate'): Promise<Task[]> {
+export async function getAllTasks(
+  sortBy: 'createdAt' | 'dueDate' | 'status' = 'dueDate'
+): Promise<Task[]> {
   const db = await getDatabase();
-  
+
   let orderBy = 'dueDate ASC';
   if (sortBy === 'createdAt') orderBy = 'createdAt DESC';
   else if (sortBy === 'status') orderBy = 'status ASC, dueDate ASC';
-  
+
   const results = await db.getAllAsync<any>(`SELECT * FROM tasks ORDER BY ${orderBy}`);
-  
+
   return results.map(mapRowToTask);
 }
 
 export async function updateTask(input: UpdateTaskInput): Promise<Task | null> {
   const db = await getDatabase();
   const existing = await getTask(input.id);
-  
+
   if (!existing) return null;
-  
+
   const updated: Task = {
     ...existing,
     title: input.title ?? existing.title,

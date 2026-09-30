@@ -7,7 +7,7 @@
       "dueDate": "2026-10-15T14:00:00.000Z",
       "locationAddress": "123 Main St, New York, NY",
       "locationLatitude": 40.7128,
-      "locationLongitude": -74.0060,
+      "locationLongitude": -74.006,
       "status": "New",
       "createdAt": "2026-09-30T10:00:00.000Z",
       "updatedAt": "2026-09-30T10:00:00.000Z",

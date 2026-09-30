@@ -39,38 +39,45 @@ A React Native mobile application for field technicians to manage daily work tas
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/AlekseiYerokhin/field-ops-task-manager.git
 cd field-ops-task-manager
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 Edit `.env` and configure:
+
 ```
 API_BASE_URL=http://localhost:3000
 APP_ENV=development
 ```
 
 4. Start the mock server (in a separate terminal):
+
 ```bash
 npm run mock-server
 ```
 
 5. Start the Expo development server:
+
 ```bash
 npx expo start
 ```
 
 6. Run on Android emulator:
+
 ```bash
 npx expo run:android
 ```
@@ -133,16 +140,19 @@ src/
 ### Using EAS Build (Recommended)
 
 1. Install EAS CLI:
+
 ```bash
 npm install -g eas-cli
 ```
 
 2. Configure EAS:
+
 ```bash
 eas build:configure
 ```
 
 3. Build APK:
+
 ```bash
 eas build --platform android --profile preview
 ```
@@ -168,11 +178,13 @@ APK will be in `android/app/build/outputs/apk/release/`
 ## Testing
 
 Run TypeScript type checking:
+
 ```bash
 npx tsc --noEmit
 ```
 
 Run ESLint:
+
 ```bash
 npm run lint
 ```
@@ -180,6 +192,7 @@ npm run lint
 ## AI/Tooling Disclosure
 
 This project was developed with assistance from AI coding tools for:
+
 - Code generation and boilerplate
 - Debugging and error resolution
 - Architecture suggestions
