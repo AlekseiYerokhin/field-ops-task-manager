@@ -26,13 +26,13 @@ describe('themeStore', () => {
 
   it('should toggle theme multiple times', () => {
     const state = useThemeStore.getState();
-    
+
     state.toggleTheme();
     expect(useThemeStore.getState().theme).toBe('dark');
-    
+
     state.toggleTheme();
     expect(useThemeStore.getState().theme).toBe('light');
-    
+
     state.toggleTheme();
     expect(useThemeStore.getState().theme).toBe('dark');
   });

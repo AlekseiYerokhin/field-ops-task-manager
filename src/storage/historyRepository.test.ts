@@ -157,10 +157,7 @@ describe('historyRepository', () => {
 
       await historyRepository.getAllLogs(50);
 
-      expect(mockDb.getAllAsync).toHaveBeenCalledWith(
-        expect.stringContaining('LIMIT ?'),
-        [50]
-      );
+      expect(mockDb.getAllAsync).toHaveBeenCalledWith(expect.stringContaining('LIMIT ?'), [50]);
     });
 
     it('should order logs by timestamp descending', async () => {
