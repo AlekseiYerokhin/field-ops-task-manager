@@ -1,0 +1,19 @@
+{
+  "tasks": [
+    {
+      "id": "sample-1",
+      "title": "Sample Task 1",
+      "description": "This is a sample task from the server",
+      "dueDate": "2026-10-15T14:00:00.000Z",
+      "locationAddress": "123 Main St, New York, NY",
+      "locationLatitude": 40.7128,
+      "locationLongitude": -74.0060,
+      "status": "New",
+      "createdAt": "2026-09-30T10:00:00.000Z",
+      "updatedAt": "2026-09-30T10:00:00.000Z",
+      "syncStatus": "synced"
+    }
+  ],
+  "attachments": [],
+  "history_logs": []
+}
