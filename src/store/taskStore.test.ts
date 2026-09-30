@@ -107,7 +107,7 @@ describe('taskStore', () => {
 
   describe('deleteTask', () => {
     it('should delete a task successfully', async () => {
-      mockedTaskRepository.deleteTask.mockResolvedValue(undefined);
+      mockedTaskRepository.deleteTask.mockResolvedValue(true);
       mockedTaskRepository.getAllTasks.mockResolvedValue([]);
 
       await useTaskStore.getState().deleteTask('1');
@@ -118,7 +118,7 @@ describe('taskStore', () => {
     });
 
     it('should refresh tasks after deletion', async () => {
-      mockedTaskRepository.deleteTask.mockResolvedValue(undefined);
+      mockedTaskRepository.deleteTask.mockResolvedValue(true);
       mockedTaskRepository.getAllTasks.mockResolvedValue([]);
 
       await useTaskStore.getState().deleteTask('1');
@@ -136,8 +136,8 @@ describe('taskStore', () => {
     });
 
     it('should set isLoading to true while deleting', async () => {
-      let resolveDelete: () => void;
-      const deletePromise = new Promise<void>((resolve) => {
+      let resolveDelete: (value: boolean) => void;
+      const deletePromise = new Promise<boolean>((resolve) => {
         resolveDelete = resolve;
       });
 
@@ -147,7 +147,7 @@ describe('taskStore', () => {
       const deleteTaskPromise = useTaskStore.getState().deleteTask('1');
       expect(useTaskStore.getState().isLoading).toBe(true);
 
-      resolveDelete!();
+      resolveDelete!(true);
       await deleteTaskPromise;
 
       expect(useTaskStore.getState().isLoading).toBe(false);
