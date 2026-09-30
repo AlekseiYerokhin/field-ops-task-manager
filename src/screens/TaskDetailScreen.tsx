@@ -7,7 +7,7 @@ import { useTaskStore } from '../store/taskStore';
 import * as taskRepository from '../storage/taskRepository';
 import * as historyRepository from '../storage/historyRepository';
 import type { RootStackParamList } from '../navigation/types';
-import type { Task, HistoryLog } from '../types';
+import type { Task, HistoryLog, TaskStatus } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'>;
 type RoutePropType = RouteProp<RootStackParamList, 'TaskDetail'>;
@@ -93,7 +93,29 @@ export default function TaskDetailScreen() {
   };
 
   const handleChangeStatus = () => {
-    navigation.navigate('TaskEdit', { taskId });
+    if (!task) return;
+
+    const statuses: TaskStatus[] = ['New', 'In Progress', 'Completed', 'Cancelled'];
+    const statusButtons = statuses
+      .filter((status) => status !== task.status)
+      .map((status) => ({
+        text: status,
+        onPress: async () => {
+          const oldStatus = task.status;
+          await taskRepository.updateTask({ id: task.id, status });
+          await historyRepository.addLogEntry({
+            taskId: task.id,
+            actionType: 'status_changed',
+            description: `Status changed from "${oldStatus}" to "${status}"`,
+          });
+          loadTaskData();
+        },
+      }));
+
+    Alert.alert('Change Status', 'Select new status:', [
+      { text: 'Cancel', style: 'cancel' },
+      ...statusButtons,
+    ]);
   };
 
   if (isLoading) {
