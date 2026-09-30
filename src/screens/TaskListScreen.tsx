@@ -82,7 +82,7 @@ function EmptyState() {
 
 export default function TaskListScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { tasks, fetchTasks, isLoading } = useTaskStore();
+  const { tasks, fetchTasks, isLoading, sortBy, setSortBy } = useTaskStore();
 
   const handleTaskPress = (taskId: string) => {
     navigation.navigate('TaskDetail', { taskId });
@@ -98,6 +98,42 @@ export default function TaskListScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.sortBar}>
+        <Text style={styles.sortLabel}>Sort by:</Text>
+        <View style={styles.sortButtons}>
+          <TouchableOpacity
+            style={[styles.sortButton, sortBy === 'dueDate' && styles.sortButtonActive]}
+            onPress={() => setSortBy('dueDate')}
+          >
+            <Text
+              style={[styles.sortButtonText, sortBy === 'dueDate' && styles.sortButtonTextActive]}
+            >
+              Due Date
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.sortButton, sortBy === 'createdAt' && styles.sortButtonActive]}
+            onPress={() => setSortBy('createdAt')}
+          >
+            <Text
+              style={[styles.sortButtonText, sortBy === 'createdAt' && styles.sortButtonTextActive]}
+            >
+              Date Added
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.sortButton, sortBy === 'status' && styles.sortButtonActive]}
+            onPress={() => setSortBy('status')}
+          >
+            <Text
+              style={[styles.sortButtonText, sortBy === 'status' && styles.sortButtonTextActive]}
+            >
+              Status
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
@@ -118,6 +154,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  sortBar: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  sortLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginBottom: 8,
+  },
+  sortButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  sortButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#f3f4f6',
+  },
+  sortButtonActive: {
+    backgroundColor: '#3b82f6',
+  },
+  sortButtonText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  sortButtonTextActive: {
+    color: '#fff',
   },
   listContent: {
     padding: 16,
