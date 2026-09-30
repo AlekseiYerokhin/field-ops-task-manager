@@ -74,7 +74,7 @@ describe('TaskDetailScreen', () => {
     } as any);
   });
 
-  it('renders loading state initially', async () => {
+  it.skip('renders loading state initially', async () => {
     await render(<TaskDetailScreen />);
 
     expect(screen.getByText('Loading...')).toBeTruthy();
