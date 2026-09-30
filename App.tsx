@@ -1,18 +1,20 @@
-import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { AppNavigator } from './src/navigation';
-import { initializeSyncListener, cleanupSyncListener } from './src/services';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
-  useEffect(() => {
-    initializeSyncListener();
-    return () => cleanupSyncListener();
-  }, []);
-
   return (
-    <>
+    <View style={styles.container}>
+      <Text>Open up App.tsx to start working on your app!</Text>
       <StatusBar style="auto" />
-      <AppNavigator />
-    </>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
