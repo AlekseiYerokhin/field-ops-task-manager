@@ -15,6 +15,13 @@ jest.mock('expo-constants', () => ({
   },
 }));
 
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
+  requestCameraPermissionsAsync: jest.fn(),
+  launchCameraAsync: jest.fn(),
+}));
+
 // Mock react-native
 jest.mock('react-native', () => {
   return {
