@@ -18,7 +18,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
         granted: false,
         canAskAgain: true,
-        status: 'denied',
+        status: 'denied' as any,
         expires: 'never',
       });
 
@@ -34,7 +34,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchImageLibraryAsync.mockResolvedValue({
@@ -52,7 +52,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchImageLibraryAsync.mockResolvedValue({
@@ -82,7 +82,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchImageLibraryAsync.mockResolvedValue({
@@ -105,7 +105,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchImageLibraryAsync.mockRejectedValue(new Error('Pick failed'));
@@ -123,7 +123,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestCameraPermissionsAsync.mockResolvedValue({
         granted: false,
         canAskAgain: true,
-        status: 'denied',
+        status: 'denied' as any,
         expires: 'never',
       });
 
@@ -139,7 +139,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestCameraPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchCameraAsync.mockResolvedValue({
@@ -157,7 +157,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestCameraPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchCameraAsync.mockResolvedValue({
@@ -187,7 +187,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestCameraPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchCameraAsync.mockResolvedValue({
@@ -210,7 +210,7 @@ describe('useImagePicker', () => {
       mockedImagePicker.requestCameraPermissionsAsync.mockResolvedValue({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: 'granted' as any,
         expires: 'never',
       });
       mockedImagePicker.launchCameraAsync.mockRejectedValue(new Error('Camera failed'));
