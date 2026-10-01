@@ -56,6 +56,13 @@ function getStatusColor(status: string): string {
   }
 }
 
+function getFileTypeIcon(mimeType: string): string {
+  if (mimeType.startsWith('video/')) return '🎬';
+  if (mimeType === 'application/pdf') return '📄';
+  if (mimeType.startsWith('text/')) return '📝';
+  return '📎';
+}
+
 export default function TaskDetailScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
@@ -191,12 +198,13 @@ export default function TaskDetailScreen() {
           <Text style={styles.emptyText}>No attachments</Text>
         ) : (
           <View style={styles.attachmentGrid}>
-            {attachments.map((attachment) =>
-              unavailableAttachments.has(attachment.id) ? (
+            {attachments.map((attachment) => {
+              const isImage = attachment.mimeType.startsWith('image/');
+              return unavailableAttachments.has(attachment.id) ? (
                 <View key={attachment.id} style={styles.attachmentItem}>
                   <Text style={styles.unavailableText}>File Unavailable</Text>
                 </View>
-              ) : (
+              ) : isImage ? (
                 <TouchableOpacity
                   key={attachment.id}
                   style={styles.attachmentItem}
@@ -208,8 +216,15 @@ export default function TaskDetailScreen() {
                     onError={() => handleImageError(attachment.id)}
                   />
                 </TouchableOpacity>
-              )
-            )}
+              ) : (
+                <View key={attachment.id} style={styles.attachmentItem}>
+                  <Text style={styles.fileIcon}>{getFileTypeIcon(attachment.mimeType)}</Text>
+                  <Text style={styles.fileName} numberOfLines={1}>
+                    {attachment.fileName}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         )}
       </View>
@@ -347,6 +362,16 @@ const styles = StyleSheet.create({
   attachmentImage: {
     width: '100%',
     height: '100%',
+  },
+  fileIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  fileName: {
+    fontSize: 10,
+    color: '#666',
+    textAlign: 'center',
+    paddingHorizontal: 4,
   },
   unavailableText: {
     fontSize: 11,

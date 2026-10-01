@@ -22,6 +22,10 @@ jest.mock('expo-image-picker', () => ({
   launchCameraAsync: jest.fn(),
 }));
 
+jest.mock('expo-document-picker', () => ({
+  getDocumentAsync: jest.fn(),
+}));
+
 jest.mock('expo-notifications', () => ({
   setNotificationChannelAsync: jest.fn(),
   getPermissionsAsync: jest.fn(),
