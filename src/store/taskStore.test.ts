@@ -1,10 +1,13 @@
 import { useTaskStore } from './taskStore';
 import * as taskRepository from '../storage/taskRepository';
+import * as historyRepository from '../storage/historyRepository';
 
-// Mock the taskRepository
+// Mock the repositories
 jest.mock('../storage/taskRepository');
+jest.mock('../storage/historyRepository');
 
 const mockedTaskRepository = taskRepository as jest.Mocked<typeof taskRepository>;
+const mockedHistoryRepository = historyRepository as jest.Mocked<typeof historyRepository>;
 
 describe('taskStore', () => {
   beforeEach(() => {
@@ -107,23 +110,65 @@ describe('taskStore', () => {
 
   describe('deleteTask', () => {
     it('should delete a task successfully', async () => {
+      mockedTaskRepository.getTask.mockResolvedValue({
+        id: '1',
+        title: 'Task to delete',
+        description: 'Description',
+        dueDate: '2024-12-31T00:00:00.000Z',
+        location: { address: 'Location' },
+        status: 'New' as const,
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        syncStatus: 'synced' as const,
+      });
       mockedTaskRepository.deleteTask.mockResolvedValue(true);
       mockedTaskRepository.getAllTasks.mockResolvedValue([]);
+      mockedHistoryRepository.addLogEntry.mockResolvedValue({
+        id: '1',
+        taskId: '1',
+        timestamp: '2024-01-01T00:00:00.000Z',
+        actionType: 'deleted',
+        description: 'Task deleted',
+      });
 
       await useTaskStore.getState().deleteTask('1');
 
       expect(mockedTaskRepository.deleteTask).toHaveBeenCalledWith('1');
+      expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalledWith({
+        taskId: '1',
+        actionType: 'deleted',
+        description: 'Task "Task to delete" deleted',
+      });
       expect(useTaskStore.getState().isLoading).toBe(false);
       expect(useTaskStore.getState().error).toBeNull();
     });
 
     it('should refresh tasks after deletion', async () => {
+      mockedTaskRepository.getTask.mockResolvedValue({
+        id: '1',
+        title: 'Task to delete',
+        description: 'Description',
+        dueDate: '2024-12-31T00:00:00.000Z',
+        location: { address: 'Location' },
+        status: 'New' as const,
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+        syncStatus: 'synced' as const,
+      });
       mockedTaskRepository.deleteTask.mockResolvedValue(true);
       mockedTaskRepository.getAllTasks.mockResolvedValue([]);
+      mockedHistoryRepository.addLogEntry.mockResolvedValue({
+        id: '1',
+        taskId: '1',
+        timestamp: '2024-01-01T00:00:00.000Z',
+        actionType: 'deleted',
+        description: 'Task deleted',
+      });
 
       await useTaskStore.getState().deleteTask('1');
 
       expect(mockedTaskRepository.getAllTasks).toHaveBeenCalled();
+      expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalled();
     });
 
     it('should handle delete error', async () => {
@@ -186,11 +231,23 @@ describe('createTask', () => {
 
     mockedTaskRepository.createTask.mockResolvedValue(createdTask);
     mockedTaskRepository.getAllTasks.mockResolvedValue([createdTask]);
+    mockedHistoryRepository.addLogEntry.mockResolvedValue({
+      id: '1',
+      taskId: '1',
+      timestamp: '2024-01-01T00:00:00.000Z',
+      actionType: 'created',
+      description: 'Task created',
+    });
 
     const result = await useTaskStore.getState().createTask(input);
 
     expect(mockedTaskRepository.createTask).toHaveBeenCalledWith(input);
     expect(result).toEqual(createdTask);
+    expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalledWith({
+      taskId: '1',
+      actionType: 'created',
+      description: 'Task "New Task" created',
+    });
     expect(useTaskStore.getState().isLoading).toBe(false);
     expect(useTaskStore.getState().error).toBeNull();
   });
@@ -214,10 +271,18 @@ describe('createTask', () => {
 
     mockedTaskRepository.createTask.mockResolvedValue(createdTask);
     mockedTaskRepository.getAllTasks.mockResolvedValue([createdTask]);
+    mockedHistoryRepository.addLogEntry.mockResolvedValue({
+      id: '1',
+      taskId: '1',
+      timestamp: '2024-01-01T00:00:00.000Z',
+      actionType: 'created',
+      description: 'Task created',
+    });
 
     await useTaskStore.getState().createTask(input);
 
     expect(mockedTaskRepository.getAllTasks).toHaveBeenCalled();
+    expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalled();
   });
 
   it('should handle create error', async () => {
@@ -251,6 +316,18 @@ describe('updateTask', () => {
       status: 'In Progress' as const,
     };
 
+    const existingTask = {
+      id: '1',
+      title: 'Old Task',
+      description: 'Old Description',
+      dueDate: '2024-12-31T00:00:00.000Z',
+      location: { address: 'Old Location' },
+      status: 'New' as const,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      syncStatus: 'synced' as const,
+    };
+
     const updatedTask = {
       ...input,
       createdAt: '2024-01-01T00:00:00.000Z',
@@ -258,13 +335,22 @@ describe('updateTask', () => {
       syncStatus: 'pending' as const,
     };
 
+    mockedTaskRepository.getTask.mockResolvedValue(existingTask);
     mockedTaskRepository.updateTask.mockResolvedValue(updatedTask);
     mockedTaskRepository.getAllTasks.mockResolvedValue([updatedTask]);
+    mockedHistoryRepository.addLogEntry.mockResolvedValue({
+      id: '1',
+      taskId: '1',
+      timestamp: '2024-01-01T00:00:00.000Z',
+      actionType: 'edited',
+      description: 'Task updated',
+    });
 
     const result = await useTaskStore.getState().updateTask(input);
 
     expect(mockedTaskRepository.updateTask).toHaveBeenCalledWith(input);
     expect(result).toEqual(updatedTask);
+    expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalled();
     expect(useTaskStore.getState().isLoading).toBe(false);
     expect(useTaskStore.getState().error).toBeNull();
   });
@@ -273,6 +359,18 @@ describe('updateTask', () => {
     const input = {
       id: '1',
       title: 'Updated Task',
+    };
+
+    const existingTask = {
+      id: '1',
+      title: 'Old Task',
+      description: 'Description',
+      dueDate: '2024-12-31T00:00:00.000Z',
+      location: { address: 'Location' },
+      status: 'New' as const,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      syncStatus: 'synced' as const,
     };
 
     const updatedTask = {
@@ -287,12 +385,21 @@ describe('updateTask', () => {
       syncStatus: 'pending' as const,
     };
 
+    mockedTaskRepository.getTask.mockResolvedValue(existingTask);
     mockedTaskRepository.updateTask.mockResolvedValue(updatedTask);
     mockedTaskRepository.getAllTasks.mockResolvedValue([updatedTask]);
+    mockedHistoryRepository.addLogEntry.mockResolvedValue({
+      id: '1',
+      taskId: '1',
+      timestamp: '2024-01-01T00:00:00.000Z',
+      actionType: 'edited',
+      description: 'Task updated',
+    });
 
     await useTaskStore.getState().updateTask(input);
 
     expect(mockedTaskRepository.getAllTasks).toHaveBeenCalled();
+    expect(mockedHistoryRepository.addLogEntry).toHaveBeenCalled();
   });
 
   it('should handle update error', async () => {
@@ -301,6 +408,19 @@ describe('updateTask', () => {
       title: 'Updated Task',
     };
 
+    const existingTask = {
+      id: '1',
+      title: 'Old Task',
+      description: 'Description',
+      dueDate: '2024-12-31T00:00:00.000Z',
+      location: { address: 'Location' },
+      status: 'New' as const,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      syncStatus: 'synced' as const,
+    };
+
+    mockedTaskRepository.getTask.mockResolvedValue(existingTask);
     mockedTaskRepository.updateTask.mockRejectedValue(new Error('Update failed'));
 
     await expect(useTaskStore.getState().updateTask(input)).rejects.toThrow(
