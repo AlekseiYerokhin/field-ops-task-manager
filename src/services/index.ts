@@ -1,1 +1,6 @@
-// Export all services
+export {
+  registerForPushNotificationsAsync,
+  scheduleTaskNotification,
+  cancelTaskNotification,
+  cancelAllNotifications,
+} from './notificationService';
