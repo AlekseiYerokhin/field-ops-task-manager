@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as taskRepository from '../storage/taskRepository';
+import * as historyRepository from '../storage/historyRepository';
 import type { Task, CreateTaskInput, UpdateTaskInput } from '../types';
 
 type SortBy = 'createdAt' | 'dueDate' | 'status';
@@ -41,7 +42,18 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   deleteTask: async (taskId: string) => {
     set({ isLoading: true, error: null });
     try {
+      const task = await taskRepository.getTask(taskId);
       await taskRepository.deleteTask(taskId);
+
+      // Log the deletion
+      if (task) {
+        await historyRepository.addLogEntry({
+          taskId: task.id,
+          actionType: 'deleted',
+          description: `Task "${task.title}" deleted`,
+        });
+      }
+
       await get().fetchTasks();
     } catch {
       set({ error: 'Failed to delete task', isLoading: false });
@@ -52,6 +64,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const task = await taskRepository.createTask(input);
+      await historyRepository.addLogEntry({
+        taskId: task.id,
+        actionType: 'created',
+        description: `Task "${task.title}" created`,
+      });
       await get().fetchTasks();
       set({ isLoading: false });
       return task;
@@ -64,11 +81,34 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   updateTask: async (input: UpdateTaskInput) => {
     set({ isLoading: true, error: null });
     try {
+      const existingTask = await taskRepository.getTask(input.id);
+      if (!existingTask) {
+        set({ isLoading: false });
+        throw new Error('Task not found');
+      }
+
       const task = await taskRepository.updateTask(input);
       if (!task) {
         set({ isLoading: false });
         throw new Error('Task not found');
       }
+
+      // Log the edit
+      await historyRepository.addLogEntry({
+        taskId: task.id,
+        actionType: 'edited',
+        description: `Task "${task.title}" updated`,
+      });
+
+      // Log status change if status was updated
+      if (input.status && input.status !== existingTask.status) {
+        await historyRepository.addLogEntry({
+          taskId: task.id,
+          actionType: 'status_changed',
+          description: `Status changed from "${existingTask.status}" to "${input.status}"`,
+        });
+      }
+
       await get().fetchTasks();
       set({ isLoading: false });
       return task;
