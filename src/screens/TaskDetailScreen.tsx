@@ -252,18 +252,30 @@ export default function TaskDetailScreen() {
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.button} onPress={handleEdit}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleEdit}
+          accessibilityRole="button"
+          accessibilityLabel="Edit task"
+        >
           <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.changeStatusButton]}
           onPress={handleChangeStatus}
+          accessibilityRole="button"
+          accessibilityLabel="Change task status"
         >
           <Text style={styles.buttonText}>Change Status</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDelete}>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={handleDelete}
+          accessibilityRole="button"
+          accessibilityLabel="Delete task"
+        >
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>
       </View>

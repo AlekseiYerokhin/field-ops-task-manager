@@ -241,6 +241,7 @@ export default function TaskFormScreen() {
             onChangeText={setTitle}
             placeholder="Enter task title"
             placeholderTextColor="#999"
+            accessibilityLabel="Task title"
           />
         </View>
 
@@ -254,12 +255,18 @@ export default function TaskFormScreen() {
             placeholderTextColor="#999"
             multiline
             numberOfLines={4}
+            accessibilityLabel="Task description"
           />
         </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>Due Date *</Text>
-          <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Set due date"
+          >
             <Text style={styles.dateButtonText}>{formatDate(dueDate)}</Text>
           </TouchableOpacity>
           {showDatePicker && (
@@ -280,6 +287,7 @@ export default function TaskFormScreen() {
             onChangeText={setLocationAddress}
             placeholder="Enter location address"
             placeholderTextColor="#999"
+            accessibilityLabel="Task location"
           />
         </View>
 
@@ -313,13 +321,28 @@ export default function TaskFormScreen() {
         <View style={styles.field}>
           <Text style={styles.label}>Attachments</Text>
           <View style={styles.attachButtonRow}>
-            <TouchableOpacity style={styles.attachButton} onPress={handleAddAttachment}>
+            <TouchableOpacity
+              style={styles.attachButton}
+              onPress={handleAddAttachment}
+              accessibilityRole="button"
+              accessibilityLabel="Attach image"
+            >
               <Text style={styles.attachButtonText}>+ Image</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.attachButton} onPress={handleAddVideo}>
+            <TouchableOpacity
+              style={styles.attachButton}
+              onPress={handleAddVideo}
+              accessibilityRole="button"
+              accessibilityLabel="Attach video"
+            >
               <Text style={styles.attachButtonText}>+ Video</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.attachButton} onPress={handleAddDocument}>
+            <TouchableOpacity
+              style={styles.attachButton}
+              onPress={handleAddDocument}
+              accessibilityRole="button"
+              accessibilityLabel="Attach document"
+            >
               <Text style={styles.attachButtonText}>+ Document</Text>
             </TouchableOpacity>
           </View>
@@ -384,6 +407,8 @@ export default function TaskFormScreen() {
             style={[styles.button, styles.cancelButton]}
             onPress={() => navigation.goBack()}
             disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel"
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
@@ -392,6 +417,8 @@ export default function TaskFormScreen() {
             style={[styles.button, styles.submitButton, isLoading && styles.buttonDisabled]}
             onPress={handleSubmit}
             disabled={isLoading}
+            accessibilityRole="button"
+            accessibilityLabel={isEditMode ? 'Update task' : 'Create task'}
           >
             <Text style={styles.submitButtonText}>
               {isLoading ? 'Saving...' : isEditMode ? 'Update' : 'Create'}

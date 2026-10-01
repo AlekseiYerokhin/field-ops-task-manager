@@ -55,12 +55,22 @@ function getStatusColor(status: string): string {
 function TaskCard({ task, onPress }: { task: Task; onPress: () => void }) {
   return (
     <AnimatedIn>
-      <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={onPress}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`${task.title}, status ${task.status}`}
+        accessibilityHint="Opens task details"
+      >
         <View style={styles.cardHeader}>
           <Text style={styles.taskTitle} numberOfLines={2}>
             {task.title}
           </Text>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
+          <View
+            style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}
+            accessible={false}
+          >
             <Text style={styles.statusText}>{task.status}</Text>
           </View>
         </View>
@@ -175,9 +185,15 @@ export default function TaskListScreen() {
           onChangeText={setSearchText}
           placeholder="Search by title..."
           placeholderTextColor="#999"
+          accessibilityLabel="Search tasks by title"
         />
         {hasActiveFilters && (
-          <TouchableOpacity style={styles.clearFiltersButton} onPress={clearFilters}>
+          <TouchableOpacity
+            style={styles.clearFiltersButton}
+            onPress={clearFilters}
+            accessibilityRole="button"
+            accessibilityLabel="Clear filters"
+          >
             <Text style={styles.clearFiltersText}>Clear</Text>
           </TouchableOpacity>
         )}
@@ -195,6 +211,9 @@ export default function TaskListScreen() {
                 key={status}
                 style={[styles.filterChip, statusFilter === status && styles.filterChipActive]}
                 onPress={() => setStatusFilter(status)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: statusFilter === status }}
+                accessibilityLabel={`Filter by status ${status}`}
               >
                 <Text
                   style={[
@@ -214,12 +233,19 @@ export default function TaskListScreen() {
         <TouchableOpacity
           style={styles.dateFilterButton}
           onPress={() => setShowDateFromPicker(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Set from date filter"
         >
           <Text style={styles.dateFilterText}>
             {dateFrom ? `From: ${formatDateShort(dateFrom)}` : 'From'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.dateFilterButton} onPress={() => setShowDateToPicker(true)}>
+        <TouchableOpacity
+          style={styles.dateFilterButton}
+          onPress={() => setShowDateToPicker(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Set to date filter"
+        >
           <Text style={styles.dateFilterText}>
             {dateTo ? `To: ${formatDateShort(dateTo)}` : 'To'}
           </Text>
@@ -249,6 +275,9 @@ export default function TaskListScreen() {
           <TouchableOpacity
             style={[styles.sortButton, sortBy === 'dueDate' && styles.sortButtonActive]}
             onPress={() => setSortBy('dueDate')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortBy === 'dueDate' }}
+            accessibilityLabel="Sort by due date"
           >
             <Text
               style={[styles.sortButtonText, sortBy === 'dueDate' && styles.sortButtonTextActive]}
@@ -259,6 +288,9 @@ export default function TaskListScreen() {
           <TouchableOpacity
             style={[styles.sortButton, sortBy === 'createdAt' && styles.sortButtonActive]}
             onPress={() => setSortBy('createdAt')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortBy === 'createdAt' }}
+            accessibilityLabel="Sort by date added"
           >
             <Text
               style={[styles.sortButtonText, sortBy === 'createdAt' && styles.sortButtonTextActive]}
@@ -269,6 +301,9 @@ export default function TaskListScreen() {
           <TouchableOpacity
             style={[styles.sortButton, sortBy === 'status' && styles.sortButtonActive]}
             onPress={() => setSortBy('status')}
+            accessibilityRole="button"
+            accessibilityState={{ selected: sortBy === 'status' }}
+            accessibilityLabel="Sort by status"
           >
             <Text
               style={[styles.sortButtonText, sortBy === 'status' && styles.sortButtonTextActive]}
@@ -290,7 +325,14 @@ export default function TaskListScreen() {
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
       />
 
-      <TouchableOpacity style={styles.fab} onPress={handleCreateTask} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleCreateTask}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Create new task"
+        accessibilityHint="Opens the create task form"
+      >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
     </View>
@@ -321,7 +363,8 @@ const styles = StyleSheet.create({
   },
   clearFiltersButton: {
     marginLeft: 8,
-    padding: 8,
+    padding: 12,
+    justifyContent: 'center',
   },
   clearFiltersText: {
     fontSize: 14,
@@ -342,8 +385,8 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderRadius: 16,
     backgroundColor: '#f3f4f6',
   },
@@ -367,7 +410,7 @@ const styles = StyleSheet.create({
   },
   dateFilterButton: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 12,
     borderRadius: 8,
     backgroundColor: '#f3f4f6',
   },
@@ -395,7 +438,7 @@ const styles = StyleSheet.create({
   },
   sortButton: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 12,
     borderRadius: 16,
     backgroundColor: '#f3f4f6',
   },
