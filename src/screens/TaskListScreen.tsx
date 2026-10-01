@@ -1,9 +1,21 @@
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  RefreshControl,
+  TextInput,
+  ScrollView,
+  Platform,
+} from 'react-native';
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTaskStore } from '../store/taskStore';
 import type { RootStackParamList } from '../navigation/types';
-import type { Task } from '../types';
+import type { Task, TaskStatus } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'>;
 
@@ -84,6 +96,13 @@ export default function TaskListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { tasks, fetchTasks, isLoading, sortBy, setSortBy } = useTaskStore();
 
+  const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | 'All'>('All');
+  const [dateFrom, setDateFrom] = useState<Date | null>(null);
+  const [dateTo, setDateTo] = useState<Date | null>(null);
+  const [showDateFromPicker, setShowDateFromPicker] = useState(false);
+  const [showDateToPicker, setShowDateToPicker] = useState(false);
+
   const handleTaskPress = (taskId: string) => {
     navigation.navigate('TaskDetail', { taskId });
   };
@@ -96,8 +115,131 @@ export default function TaskListScreen() {
     fetchTasks();
   };
 
+  const filteredTasks = tasks.filter((task) => {
+    if (searchText.trim() && !task.title.toLowerCase().includes(searchText.trim().toLowerCase())) {
+      return false;
+    }
+    if (statusFilter !== 'All' && task.status !== statusFilter) {
+      return false;
+    }
+    const taskDate = new Date(task.dueDate);
+    if (dateFrom && taskDate < dateFrom) {
+      return false;
+    }
+    if (dateTo) {
+      const endOfDay = new Date(dateTo);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (taskDate > endOfDay) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  const clearFilters = () => {
+    setSearchText('');
+    setStatusFilter('All');
+    setDateFrom(null);
+    setDateTo(null);
+  };
+
+  const onChangeDateFrom = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDateFromPicker(Platform.OS === 'ios');
+    if (event.type === 'set' && selectedDate) {
+      setDateFrom(selectedDate);
+    }
+  };
+
+  const onChangeDateTo = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowDateToPicker(Platform.OS === 'ios');
+    if (event.type === 'set' && selectedDate) {
+      setDateTo(selectedDate);
+    }
+  };
+
+  const formatDateShort = (date: Date): string =>
+    date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  const hasActiveFilters =
+    searchText.trim() !== '' || statusFilter !== 'All' || dateFrom !== null || dateTo !== null;
+
   return (
     <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder="Search by title..."
+          placeholderTextColor="#999"
+        />
+        {hasActiveFilters && (
+          <TouchableOpacity style={styles.clearFiltersButton} onPress={clearFilters}>
+            <Text style={styles.clearFiltersText}>Clear</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <View style={styles.filterBar}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.statusFilterScroll}
+        >
+          <View style={styles.statusFilterRow}>
+            {(['All', 'New', 'In Progress', 'Completed', 'Cancelled'] as const).map((status) => (
+              <TouchableOpacity
+                key={status}
+                style={[styles.filterChip, statusFilter === status && styles.filterChipActive]}
+                onPress={() => setStatusFilter(status)}
+              >
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    statusFilter === status && styles.filterChipTextActive,
+                  ]}
+                >
+                  {status}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+
+      <View style={styles.dateRangeBar}>
+        <TouchableOpacity
+          style={styles.dateFilterButton}
+          onPress={() => setShowDateFromPicker(true)}
+        >
+          <Text style={styles.dateFilterText}>
+            {dateFrom ? `From: ${formatDateShort(dateFrom)}` : 'From'}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dateFilterButton} onPress={() => setShowDateToPicker(true)}>
+          <Text style={styles.dateFilterText}>
+            {dateTo ? `To: ${formatDateShort(dateTo)}` : 'To'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {showDateFromPicker && (
+        <DateTimePicker
+          value={dateFrom || new Date()}
+          mode="date"
+          display="default"
+          onChange={onChangeDateFrom}
+        />
+      )}
+      {showDateToPicker && (
+        <DateTimePicker
+          value={dateTo || new Date()}
+          mode="date"
+          display="default"
+          onChange={onChangeDateTo}
+        />
+      )}
+
       <View style={styles.sortBar}>
         <Text style={styles.sortLabel}>Sort by:</Text>
         <View style={styles.sortButtons}>
@@ -135,11 +277,13 @@ export default function TaskListScreen() {
       </View>
 
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <TaskCard task={item} onPress={() => handleTaskPress(item.id)} />}
         ListEmptyComponent={EmptyState}
-        contentContainerStyle={tasks.length === 0 ? styles.emptyListContent : styles.listContent}
+        contentContainerStyle={
+          filteredTasks.length === 0 ? styles.emptyListContent : styles.listContent
+        }
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />}
       />
 
@@ -154,6 +298,80 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+  clearFiltersButton: {
+    marginLeft: 8,
+    padding: 8,
+  },
+  clearFiltersText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3b82f6',
+  },
+  filterBar: {
+    backgroundColor: '#fff',
+    paddingTop: 8,
+  },
+  statusFilterScroll: {
+    flexGrow: 0,
+  },
+  statusFilterRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 8,
+    paddingBottom: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#f3f4f6',
+  },
+  filterChipActive: {
+    backgroundColor: '#3b82f6',
+  },
+  filterChipText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  filterChipTextActive: {
+    color: '#fff',
+  },
+  dateRangeBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    gap: 8,
+  },
+  dateFilterButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
+  },
+  dateFilterText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#374151',
   },
   sortBar: {
     backgroundColor: '#fff',
