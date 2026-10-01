@@ -183,4 +183,36 @@ describe('TaskListScreen', () => {
     // Component should still render during loading
     expect(screen.getByText('Sort by:')).toBeTruthy();
   });
+
+  it('renders search input', async () => {
+    await render(<TaskListScreen />);
+
+    expect(screen.getByPlaceholderText('Search by title...')).toBeTruthy();
+  });
+
+  it('renders status filter chips', async () => {
+    await render(<TaskListScreen />);
+
+    expect(screen.getByText('All')).toBeTruthy();
+    expect(screen.getByText('New')).toBeTruthy();
+    expect(screen.getByText('In Progress')).toBeTruthy();
+    expect(screen.getByText('Completed')).toBeTruthy();
+    expect(screen.getByText('Cancelled')).toBeTruthy();
+  });
+
+  it('renders date range filters', async () => {
+    await render(<TaskListScreen />);
+
+    expect(screen.getByText('From')).toBeTruthy();
+    expect(screen.getByText('To')).toBeTruthy();
+  });
+
+  it('selects status filter when chip is pressed', async () => {
+    await render(<TaskListScreen />);
+
+    fireEvent.press(screen.getByText('Completed'));
+
+    // Active chip styling applied - verify no crash and chip still present
+    expect(screen.getByText('Completed')).toBeTruthy();
+  });
 });
