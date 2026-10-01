@@ -5,4 +5,5 @@ export type RootStackParamList = {
   TaskEdit: { taskId: string };
   Settings: undefined;
   History: undefined;
+  Map: undefined;
 };

@@ -54,6 +54,15 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Navigation</Text>
         <TouchableOpacity
           style={styles.settingItem}
+          onPress={() => navigation.navigate('Map')}
+          accessibilityRole="button"
+          accessibilityLabel="View task map"
+        >
+          <Text style={styles.settingLabel}>View Map</Text>
+          <Text style={styles.chevron}>›</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.settingItem}
           onPress={() => navigation.navigate('History')}
           accessibilityRole="button"
           accessibilityLabel="View history"

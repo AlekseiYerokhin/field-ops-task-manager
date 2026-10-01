@@ -21,6 +21,7 @@ import { useFilePicker } from '../hooks';
 import { scheduleTaskNotification } from '../services';
 import { useSettingsStore } from '../store';
 import { useThemeColors } from '../theme';
+import { PREDEFINED_LOCATIONS } from '../utils/locations';
 import type { Colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import type { TaskStatus, TaskLocation, Attachment } from '../types';
@@ -53,6 +54,8 @@ export default function TaskFormScreen() {
   const [dueDate, setDueDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [locationAddress, setLocationAddress] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [status, setStatus] = useState<TaskStatus>('New');
   const [isLoading, setIsLoading] = useState(false);
   const [newAttachments, setNewAttachments] = useState<PickedFile[]>([]);
@@ -71,6 +74,8 @@ export default function TaskFormScreen() {
         setDescription(task.description);
         setDueDate(new Date(task.dueDate));
         setLocationAddress(task.location.address);
+        setLatitude(task.location.latitude ? String(task.location.latitude) : '');
+        setLongitude(task.location.longitude ? String(task.location.longitude) : '');
         setStatus(task.status);
       }
       setExistingAttachments(attachments);
@@ -169,6 +174,8 @@ export default function TaskFormScreen() {
     try {
       const location: TaskLocation = {
         address: locationAddress.trim(),
+        latitude: latitude ? parseFloat(latitude) : undefined,
+        longitude: longitude ? parseFloat(longitude) : undefined,
       };
 
       const taskData = {
@@ -310,6 +317,54 @@ export default function TaskFormScreen() {
             placeholderTextColor="#999"
             accessibilityLabel="Task location"
           />
+
+          <Text style={styles.sublabel}>Or select a predefined location:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.locRow}>
+            {PREDEFINED_LOCATIONS.map((loc) => (
+              <TouchableOpacity
+                key={loc.address}
+                style={[styles.locChip, locationAddress === loc.address && styles.locChipActive]}
+                onPress={() => {
+                  setLocationAddress(loc.address);
+                  setLatitude(String(loc.latitude));
+                  setLongitude(String(loc.longitude));
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Select location ${loc.address}`}
+              >
+                <Text
+                  style={[
+                    styles.locChipText,
+                    locationAddress === loc.address && styles.locChipTextActive,
+                  ]}
+                >
+                  {loc.address}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Text style={styles.sublabel}>Coordinates (optional):</Text>
+          <View style={styles.coordRow}>
+            <TextInput
+              style={[styles.input, styles.coordInput]}
+              value={latitude}
+              onChangeText={setLatitude}
+              placeholder="Latitude"
+              placeholderTextColor="#999"
+              keyboardType="decimal-pad"
+              accessibilityLabel="Task latitude"
+            />
+            <TextInput
+              style={[styles.input, styles.coordInput]}
+              value={longitude}
+              onChangeText={setLongitude}
+              placeholder="Longitude"
+              placeholderTextColor="#999"
+              keyboardType="decimal-pad"
+              accessibilityLabel="Task longitude"
+            />
+          </View>
         </View>
 
         <View style={styles.field}>
@@ -481,6 +536,39 @@ function createStyles(colors: Colors) {
     textArea: {
       height: 100,
       textAlignVertical: 'top',
+    },
+    sublabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: 12,
+      marginBottom: 8,
+    },
+    locRow: {
+      flexGrow: 0,
+    },
+    locChip: {
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderRadius: 8,
+      backgroundColor: colors.inputBackground,
+      marginRight: 8,
+    },
+    locChipActive: {
+      backgroundColor: colors.primary,
+    },
+    locChipText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    locChipTextActive: {
+      color: colors.surface,
+    },
+    coordRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    coordInput: {
+      flex: 1,
     },
     dateButton: {
       backgroundColor: colors.surface,
