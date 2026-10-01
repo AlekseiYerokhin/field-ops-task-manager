@@ -15,6 +15,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTaskStore } from '../store/taskStore';
 import { AnimatedIn } from '../components';
+import { useThemeColors } from '../theme';
+import type { Colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import type { Task, TaskStatus } from '../types';
 
@@ -37,22 +39,32 @@ function formatTime(dateString: string): string {
   });
 }
 
-function getStatusColor(status: string): string {
+function getStatusColor(status: string, colors: Colors): string {
   switch (status) {
     case 'New':
-      return '#3b82f6';
+      return colors.badgeBlue;
     case 'In Progress':
-      return '#f59e0b';
+      return colors.badgeAmber;
     case 'Completed':
-      return '#10b981';
+      return colors.badgeGreen;
     case 'Cancelled':
-      return '#ef4444';
+      return colors.badgeRed;
     default:
-      return '#6b7280';
+      return colors.textTertiary;
   }
 }
 
-function TaskCard({ task, onPress }: { task: Task; onPress: () => void }) {
+function TaskCard({
+  task,
+  onPress,
+  colors,
+  styles,
+}: {
+  task: Task;
+  onPress: () => void;
+  colors: Colors;
+  styles: ReturnType<typeof createStyles>;
+}) {
   return (
     <AnimatedIn>
       <TouchableOpacity
@@ -68,7 +80,7 @@ function TaskCard({ task, onPress }: { task: Task; onPress: () => void }) {
             {task.title}
           </Text>
           <View
-            style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}
+            style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status, colors) }]}
             accessible={false}
           >
             <Text style={styles.statusText}>{task.status}</Text>
@@ -95,7 +107,7 @@ function TaskCard({ task, onPress }: { task: Task; onPress: () => void }) {
   );
 }
 
-function EmptyState() {
+function EmptyState({ styles }: { styles: ReturnType<typeof createStyles> }) {
   return (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>📋</Text>
@@ -108,6 +120,8 @@ function EmptyState() {
 export default function TaskListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { tasks, fetchTasks, isLoading, sortBy, setSortBy } = useTaskStore();
+  const colors = useThemeColors();
+  const styles = createStyles(colors);
 
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'All'>('All');
@@ -184,7 +198,7 @@ export default function TaskListScreen() {
           value={searchText}
           onChangeText={setSearchText}
           placeholder="Search by title..."
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textTertiary}
           accessibilityLabel="Search tasks by title"
         />
         {hasActiveFilters && (
@@ -317,8 +331,15 @@ export default function TaskListScreen() {
       <FlatList
         data={filteredTasks}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TaskCard task={item} onPress={() => handleTaskPress(item.id)} />}
-        ListEmptyComponent={EmptyState}
+        renderItem={({ item }) => (
+          <TaskCard
+            task={item}
+            onPress={() => handleTaskPress(item.id)}
+            colors={colors}
+            styles={styles}
+          />
+        )}
+        ListEmptyComponent={<EmptyState styles={styles} />}
         contentContainerStyle={
           filteredTasks.length === 0 ? styles.emptyListContent : styles.listContent
         }
@@ -339,221 +360,223 @@ export default function TaskListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  searchInput: {
-    flex: 1,
-    backgroundColor: '#f3f4f6',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    color: '#333',
-  },
-  clearFiltersButton: {
-    marginLeft: 8,
-    padding: 12,
-    justifyContent: 'center',
-  },
-  clearFiltersText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3b82f6',
-  },
-  filterBar: {
-    backgroundColor: '#fff',
-    paddingTop: 8,
-  },
-  statusFilterScroll: {
-    flexGrow: 0,
-  },
-  statusFilterRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 8,
-    paddingBottom: 8,
-  },
-  filterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
-  },
-  filterChipActive: {
-    backgroundColor: '#3b82f6',
-  },
-  filterChipText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  filterChipTextActive: {
-    color: '#fff',
-  },
-  dateRangeBar: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    gap: 8,
-  },
-  dateFilterButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
-  },
-  dateFilterText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#374151',
-  },
-  sortBar: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  sortLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-    marginBottom: 8,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  sortButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: '#f3f4f6',
-  },
-  sortButtonActive: {
-    backgroundColor: '#3b82f6',
-  },
-  sortButtonText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  sortButtonTextActive: {
-    color: '#fff',
-  },
-  listContent: {
-    padding: 16,
-    paddingBottom: 80,
-  },
-  emptyListContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  taskTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
-    flex: 1,
-    marginRight: 12,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  cardBody: {
-    gap: 8,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-    marginRight: 8,
-  },
-  infoValue: {
-    fontSize: 14,
-    color: '#374151',
-    flex: 1,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#3b82f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  fabIcon: {
-    fontSize: 32,
-    color: '#fff',
-    fontWeight: '300',
-    lineHeight: 34,
-  },
-});
+function createStyles(colors: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      paddingHorizontal: 16,
+      paddingTop: 12,
+    },
+    searchInput: {
+      flex: 1,
+      backgroundColor: colors.inputBackground,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 10,
+      fontSize: 16,
+      color: colors.text,
+    },
+    clearFiltersButton: {
+      marginLeft: 8,
+      padding: 12,
+      justifyContent: 'center',
+    },
+    clearFiltersText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    filterBar: {
+      backgroundColor: colors.surface,
+      paddingTop: 8,
+    },
+    statusFilterScroll: {
+      flexGrow: 0,
+    },
+    statusFilterRow: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      gap: 8,
+      paddingBottom: 8,
+    },
+    filterChip: {
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      borderRadius: 16,
+      backgroundColor: colors.inputBackground,
+    },
+    filterChipActive: {
+      backgroundColor: colors.primary,
+    },
+    filterChipText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    filterChipTextActive: {
+      color: colors.surface,
+    },
+    dateRangeBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+      gap: 8,
+    },
+    dateFilterButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      borderRadius: 8,
+      backgroundColor: colors.inputBackground,
+    },
+    dateFilterText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.text,
+    },
+    sortBar: {
+      backgroundColor: colors.surface,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    sortLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
+    sortButtons: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    sortButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      borderRadius: 16,
+      backgroundColor: colors.inputBackground,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    sortButtonTextActive: {
+      color: colors.surface,
+    },
+    listContent: {
+      padding: 16,
+      paddingBottom: 80,
+    },
+    emptyListContent: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 12,
+    },
+    taskTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.text,
+      flex: 1,
+      marginRight: 12,
+    },
+    statusBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    statusText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.surface,
+    },
+    cardBody: {
+      gap: 8,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    infoLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.textSecondary,
+      marginRight: 8,
+    },
+    infoValue: {
+      fontSize: 14,
+      color: colors.text,
+      flex: 1,
+    },
+    emptyContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 32,
+    },
+    emptyIcon: {
+      fontSize: 64,
+      marginBottom: 16,
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    emptySubtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    fab: {
+      position: 'absolute',
+      right: 24,
+      bottom: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    fabIcon: {
+      fontSize: 32,
+      color: colors.surface,
+      fontWeight: '300',
+      lineHeight: 34,
+    },
+  });
+}

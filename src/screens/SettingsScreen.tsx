@@ -2,6 +2,7 @@ import { StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeStore, useSettingsStore } from '../store';
+import { useThemeColors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -12,6 +13,8 @@ export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme, toggleTheme } = useThemeStore();
   const { demoMode, setDemoMode } = useSettingsStore();
+  const colors = useThemeColors();
+  const styles = createStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -75,54 +78,56 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-  },
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: '#333',
-  },
-  settingValue: {
-    fontSize: 16,
-    color: '#666',
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: '#999',
-    marginTop: 4,
-    lineHeight: 18,
-  },
-  candidateCode: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#3b82f6',
-  },
-  chevron: {
-    fontSize: 24,
-    color: '#999',
-  },
-});
+function createStyles(colors: ReturnType<typeof useThemeColors>) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+      padding: 16,
+    },
+    section: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: 12,
+      textTransform: 'uppercase',
+    },
+    settingItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    settingLabel: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    settingValue: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    settingDescription: {
+      fontSize: 13,
+      color: colors.textTertiary,
+      marginTop: 4,
+      lineHeight: 18,
+    },
+    candidateCode: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    chevron: {
+      fontSize: 24,
+      color: colors.textTertiary,
+    },
+  });
+}
