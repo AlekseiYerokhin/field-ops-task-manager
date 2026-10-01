@@ -1,7 +1,13 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TaskListScreen, TaskDetailScreen, TaskFormScreen, SettingsScreen } from '../screens';
+import {
+  TaskListScreen,
+  TaskDetailScreen,
+  TaskFormScreen,
+  SettingsScreen,
+  HistoryScreen,
+} from '../screens';
 import type { RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +40,7 @@ export default function AppNavigator() {
         />
         <Stack.Screen name="TaskEdit" component={TaskFormScreen} options={{ title: 'Edit Task' }} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+        <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'History' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
