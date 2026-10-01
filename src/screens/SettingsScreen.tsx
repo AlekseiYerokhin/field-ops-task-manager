@@ -1,7 +1,8 @@
 import { StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useThemeStore, useSettingsStore } from '../store';
+import { useThemeStore, useSettingsStore, useSyncStore } from '../store';
+import { syncPendingChanges } from '../services';
 import { useThemeColors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
@@ -9,10 +10,23 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 const CANDIDATE_CODE = 'SA-RN-7429';
 
+const SYNC_STATUS_LABEL: Record<string, string> = {
+  synced: 'Synced',
+  pending: 'Pending Sync',
+  failed: 'Sync Failed',
+};
+
+const SYNC_STATUS_COLOR: Record<string, string> = {
+  synced: '#10b981',
+  pending: '#f59e0b',
+  failed: '#ef4444',
+};
+
 export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme, toggleTheme } = useThemeStore();
   const { demoMode, setDemoMode } = useSettingsStore();
+  const { syncStatus, lastSyncTime } = useSyncStore();
   const colors = useThemeColors();
   const styles = createStyles(colors);
 
@@ -48,6 +62,30 @@ export default function SettingsScreen() {
           When enabled, task notifications trigger ~45 seconds after saving, so you can verify the
           flow without waiting 30 minutes.
         </Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Sync</Text>
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Status</Text>
+          <View style={styles.syncStatusRow}>
+            <View style={[styles.syncDot, { backgroundColor: SYNC_STATUS_COLOR[syncStatus] }]} />
+            <Text style={styles.syncStatusText}>{SYNC_STATUS_LABEL[syncStatus]}</Text>
+          </View>
+        </View>
+        {lastSyncTime && (
+          <Text style={styles.settingDescription}>
+            Last sync: {new Date(lastSyncTime).toLocaleString()}
+          </Text>
+        )}
+        <TouchableOpacity
+          style={styles.syncButton}
+          onPress={() => syncPendingChanges()}
+          accessibilityRole="button"
+          accessibilityLabel="Sync now"
+        >
+          <Text style={styles.syncButtonText}>Sync Now</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -137,6 +175,33 @@ function createStyles(colors: ReturnType<typeof useThemeColors>) {
     chevron: {
       fontSize: 24,
       color: colors.textTertiary,
+    },
+    syncStatusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    syncDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+    },
+    syncStatusText: {
+      fontSize: 16,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    syncButton: {
+      backgroundColor: colors.primary,
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 12,
+    },
+    syncButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.surface,
     },
   });
 }
