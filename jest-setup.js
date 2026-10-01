@@ -22,6 +22,21 @@ jest.mock('expo-image-picker', () => ({
   launchCameraAsync: jest.fn(),
 }));
 
+jest.mock('expo-notifications', () => ({
+  setNotificationChannelAsync: jest.fn(),
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  scheduleNotificationAsync: jest.fn(),
+  cancelScheduledNotificationAsync: jest.fn(),
+  cancelAllScheduledNotificationsAsync: jest.fn(),
+  AndroidImportance: {
+    MAX: 5,
+  },
+  SchedulableTriggerInputTypes: {
+    DATE: 'date',
+  },
+}));
+
 // Mock react-native
 jest.mock('react-native', () => {
   return {
