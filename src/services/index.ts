@@ -4,3 +4,4 @@ export {
   cancelTaskNotification,
   cancelAllNotifications,
 } from './notificationService';
+export { mergeTasks, mergeLocation, isConflict } from './conflictResolver';
