@@ -6,6 +6,14 @@ import { useThemeStore } from '../store/themeStore';
 // Mock the theme store
 jest.mock('../store/themeStore');
 
+// Mock navigation
+const mockNavigate = jest.fn();
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({
+    navigate: mockNavigate,
+  }),
+}));
+
 const mockedUseThemeStore = useThemeStore as jest.MockedFunction<typeof useThemeStore>;
 
 describe('SettingsScreen', () => {
