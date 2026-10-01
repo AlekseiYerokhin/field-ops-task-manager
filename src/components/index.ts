@@ -1,1 +1,2 @@
-// Export all components
+export { AnimatedIn } from './AnimatedIn';
+export { AnimatedStatusBadge } from './AnimatedStatusBadge';

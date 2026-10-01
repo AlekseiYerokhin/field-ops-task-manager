@@ -62,5 +62,24 @@ jest.mock('react-native', () => {
     ActivityIndicator: 'ActivityIndicator',
     Image: 'Image',
     Modal: 'Modal',
+    Animated: {
+      Value: jest.fn(() => ({
+        start: jest.fn(),
+        stop: jest.fn(),
+      })),
+      timing: jest.fn(() => ({
+        start: jest.fn((cb) => cb && cb()),
+        stop: jest.fn(),
+      })),
+      spring: jest.fn(() => ({
+        start: jest.fn((cb) => cb && cb()),
+        stop: jest.fn(),
+      })),
+      parallel: jest.fn(() => ({
+        start: jest.fn((cb) => cb && cb()),
+        stop: jest.fn(),
+      })),
+      View: 'Animated.View',
+    },
   };
 });
