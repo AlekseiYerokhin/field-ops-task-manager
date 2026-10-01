@@ -1,0 +1,41 @@
+export const lightColors = {
+  background: '#f5f5f5',
+  surface: '#ffffff',
+  text: '#333333',
+  textSecondary: '#666666',
+  textTertiary: '#999999',
+  primary: '#3b82f6',
+  primaryLight: '#93c5fd',
+  success: '#10b981',
+  warning: '#f59e0b',
+  error: '#ef4444',
+  border: '#e5e7eb',
+  disabled: '#d1d5db',
+  inputBackground: '#f3f4f6',
+  badgeBlue: '#3b82f6',
+  badgeAmber: '#f59e0b',
+  badgeGreen: '#10b981',
+  badgeRed: '#ef4444',
+};
+
+export const darkColors = {
+  background: '#121212',
+  surface: '#1e1e1e',
+  text: '#ffffff',
+  textSecondary: '#b0b0b0',
+  textTertiary: '#808080',
+  primary: '#60a5fa',
+  primaryLight: '#3b82f6',
+  success: '#34d399',
+  warning: '#fbbf24',
+  error: '#f87171',
+  border: '#2e2e2e',
+  disabled: '#4b5563',
+  inputBackground: '#2a2a2a',
+  badgeBlue: '#60a5fa',
+  badgeAmber: '#fbbf24',
+  badgeGreen: '#34d399',
+  badgeRed: '#f87171',
+};
+
+export type Colors = typeof lightColors;

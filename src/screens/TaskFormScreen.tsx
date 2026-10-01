@@ -20,6 +20,8 @@ import * as historyRepository from '../storage/historyRepository';
 import { useFilePicker } from '../hooks';
 import { scheduleTaskNotification } from '../services';
 import { useSettingsStore } from '../store';
+import { useThemeColors } from '../theme';
+import type { Colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import type { TaskStatus, TaskLocation, Attachment } from '../types';
 import type { PickedFile } from '../hooks';
@@ -40,6 +42,8 @@ export default function TaskFormScreen() {
   const { createTask, updateTask } = useTaskStore();
   const { pickImage, pickVideo, pickDocument } = useFilePicker();
   const { demoMode } = useSettingsStore();
+  const colors = useThemeColors();
+  const styles = createStyles(colors);
 
   const isEditMode = route.name === 'TaskEdit';
   const taskId = isEditMode ? (route.params as { taskId: string }).taskId : undefined;
@@ -447,170 +451,172 @@ export default function TaskFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  form: {
-    padding: 16,
-  },
-  field: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#333',
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  dateButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-  },
-  dateButtonText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  statusButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  statusButtonActive: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
-  },
-  statusButtonText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  statusButtonTextActive: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  attachButton: {
-    backgroundColor: '#e0e7ff',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 8,
-    flex: 1,
-  },
-  attachButtonRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  attachButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4f46e5',
-  },
-  previewFileBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  previewFileLabel: {
-    fontSize: 28,
-  },
-  attachmentSection: {
-    marginTop: 8,
-  },
-  attachmentSectionLabel: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#666',
-    marginBottom: 8,
-  },
-  previewContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  previewItem: {
-    position: 'relative',
-  },
-  previewImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-  },
-  removeButton: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#ef4444',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 16,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
-  },
-  submitButton: {
-    backgroundColor: '#3b82f6',
-  },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  buttonDisabled: {
-    backgroundColor: '#93c5fd',
-  },
-});
+function createStyles(colors: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    form: {
+      padding: 16,
+    },
+    field: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      color: colors.text,
+    },
+    textArea: {
+      height: 100,
+      textAlignVertical: 'top',
+    },
+    dateButton: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 12,
+    },
+    dateButtonText: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    statusContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    statusButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    statusButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    statusButtonText: {
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    statusButtonTextActive: {
+      color: colors.surface,
+      fontWeight: '600',
+    },
+    attachButton: {
+      backgroundColor: colors.inputBackground,
+      padding: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginBottom: 8,
+      flex: 1,
+    },
+    attachButtonRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    attachButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    previewFileBox: {
+      width: 80,
+      height: 80,
+      borderRadius: 8,
+      backgroundColor: colors.inputBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    previewFileLabel: {
+      fontSize: 28,
+    },
+    attachmentSection: {
+      marginTop: 8,
+    },
+    attachmentSectionLabel: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
+    previewContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    previewItem: {
+      position: 'relative',
+    },
+    previewImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 8,
+      backgroundColor: colors.inputBackground,
+    },
+    removeButton: {
+      position: 'absolute',
+      top: -6,
+      right: -6,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: colors.error,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    removeButtonText: {
+      color: colors.surface,
+      fontSize: 14,
+      fontWeight: '700',
+      lineHeight: 16,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 20,
+    },
+    button: {
+      flex: 1,
+      padding: 16,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    cancelButton: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    cancelButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    submitButton: {
+      backgroundColor: colors.primary,
+    },
+    submitButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.surface,
+    },
+    buttonDisabled: {
+      backgroundColor: colors.primaryLight,
+    },
+  });
+}

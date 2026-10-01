@@ -17,6 +17,8 @@ import * as taskRepository from '../storage/taskRepository';
 import * as historyRepository from '../storage/historyRepository';
 import * as attachmentRepository from '../storage/attachmentRepository';
 import { AnimatedStatusBadge } from '../components';
+import { useThemeColors } from '../theme';
+import type { Colors } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import type { Task, HistoryLog, TaskStatus, Attachment } from '../types';
 
@@ -41,18 +43,18 @@ function formatTime(dateString: string): string {
   });
 }
 
-function getStatusColor(status: string): string {
+function getStatusColor(status: string, colors: Colors): string {
   switch (status) {
     case 'New':
-      return '#3b82f6';
+      return colors.badgeBlue;
     case 'In Progress':
-      return '#f59e0b';
+      return colors.badgeAmber;
     case 'Completed':
-      return '#10b981';
+      return colors.badgeGreen;
     case 'Cancelled':
-      return '#ef4444';
+      return colors.badgeRed;
     default:
-      return '#6b7280';
+      return colors.textTertiary;
   }
 }
 
@@ -68,6 +70,8 @@ export default function TaskDetailScreen() {
   const route = useRoute<RoutePropType>();
   const { taskId } = route.params;
   const { deleteTask } = useTaskStore();
+  const colors = useThemeColors();
+  const styles = createStyles(colors);
 
   const [task, setTask] = useState<Task | null>(null);
   const [history, setHistory] = useState<HistoryLog[]>([]);
@@ -167,7 +171,7 @@ export default function TaskDetailScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{task.title}</Text>
-        <AnimatedStatusBadge status={task.status} color={getStatusColor(task.status)} />
+        <AnimatedStatusBadge status={task.status} color={getStatusColor(task.status, colors)} />
       </View>
 
       <View style={styles.section}>
@@ -283,148 +287,139 @@ export default function TaskDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#6b7280',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#ef4444',
-  },
-  header: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1f2937',
-    marginBottom: 12,
-  },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  section: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginTop: 8,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6b7280',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  description: {
-    fontSize: 16,
-    color: '#374151',
-    lineHeight: 24,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#374151',
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#999',
-    fontStyle: 'italic',
-  },
-  attachmentGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  attachmentItem: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  attachmentImage: {
-    width: '100%',
-    height: '100%',
-  },
-  fileIcon: {
-    fontSize: 28,
-    marginBottom: 4,
-  },
-  fileName: {
-    fontSize: 10,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 4,
-  },
-  unavailableText: {
-    fontSize: 11,
-    color: '#999',
-    textAlign: 'center',
-    paddingHorizontal: 4,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalImage: {
-    width: '90%',
-    height: '80%',
-  },
-  coordinatesText: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 4,
-  },
-  actions: {
-    padding: 16,
-    gap: 12,
-  },
-  button: {
-    backgroundColor: '#3b82f6',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  changeStatusButton: {
-    backgroundColor: '#f59e0b',
-  },
-  deleteButton: {
-    backgroundColor: '#ef4444',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-});
+function createStyles(colors: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
+    },
+    errorText: {
+      fontSize: 16,
+      color: colors.error,
+    },
+    header: {
+      backgroundColor: colors.surface,
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    section: {
+      backgroundColor: colors.surface,
+      padding: 16,
+      marginTop: 8,
+    },
+    sectionTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: 8,
+      textTransform: 'uppercase',
+    },
+    description: {
+      fontSize: 16,
+      color: colors.text,
+      lineHeight: 24,
+    },
+    infoText: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    emptyText: {
+      fontSize: 14,
+      color: colors.textTertiary,
+      fontStyle: 'italic',
+    },
+    attachmentGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    attachmentItem: {
+      width: 100,
+      height: 100,
+      borderRadius: 8,
+      overflow: 'hidden',
+      backgroundColor: colors.inputBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    attachmentImage: {
+      width: '100%',
+      height: '100%',
+    },
+    fileIcon: {
+      fontSize: 28,
+      marginBottom: 4,
+    },
+    fileName: {
+      fontSize: 10,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      paddingHorizontal: 4,
+    },
+    unavailableText: {
+      fontSize: 11,
+      color: colors.textTertiary,
+      textAlign: 'center',
+      paddingHorizontal: 4,
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalImage: {
+      width: '90%',
+      height: '80%',
+    },
+    coordinatesText: {
+      fontSize: 14,
+      color: colors.textTertiary,
+      marginTop: 4,
+    },
+    actions: {
+      padding: 16,
+      gap: 12,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    changeStatusButton: {
+      backgroundColor: colors.warning,
+    },
+    deleteButton: {
+      backgroundColor: colors.error,
+    },
+    buttonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.surface,
+    },
+  });
+}
