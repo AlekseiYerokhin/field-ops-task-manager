@@ -8,14 +8,19 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTaskStore } from '../store/taskStore';
 import * as taskRepository from '../storage/taskRepository';
+import * as attachmentRepository from '../storage/attachmentRepository';
+import * as historyRepository from '../storage/historyRepository';
+import { useImagePicker } from '../hooks';
 import type { RootStackParamList } from '../navigation/types';
-import type { TaskStatus, TaskLocation } from '../types';
+import type { TaskStatus, TaskLocation, Attachment } from '../types';
+import type { PickedImage } from '../hooks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskCreate' | 'TaskEdit'>;
 type RoutePropType = RouteProp<RootStackParamList, 'TaskCreate' | 'TaskEdit'>;
@@ -24,6 +29,7 @@ export default function TaskFormScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
   const { createTask, updateTask } = useTaskStore();
+  const { pickImage } = useImagePicker();
 
   const isEditMode = route.name === 'TaskEdit';
   const taskId = isEditMode ? (route.params as { taskId: string }).taskId : undefined;
@@ -35,12 +41,17 @@ export default function TaskFormScreen() {
   const [locationAddress, setLocationAddress] = useState('');
   const [status, setStatus] = useState<TaskStatus>('New');
   const [isLoading, setIsLoading] = useState(false);
+  const [newAttachments, setNewAttachments] = useState<PickedImage[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
 
   const loadTask = useCallback(async () => {
     if (!taskId) return;
 
     try {
-      const task = await taskRepository.getTask(taskId);
+      const [task, attachments] = await Promise.all([
+        taskRepository.getTask(taskId),
+        attachmentRepository.getAttachmentsByTask(taskId),
+      ]);
       if (task) {
         setTitle(task.title);
         setDescription(task.description);
@@ -48,6 +59,7 @@ export default function TaskFormScreen() {
         setLocationAddress(task.location.address);
         setStatus(task.status);
       }
+      setExistingAttachments(attachments);
     } catch {
       Alert.alert('Error', 'Failed to load task');
       navigation.goBack();
@@ -60,6 +72,47 @@ export default function TaskFormScreen() {
       loadTask();
     }
   }, [isEditMode, taskId, loadTask]);
+
+  const handleAddAttachment = async () => {
+    const image = await pickImage();
+    if (image) {
+      setNewAttachments([...newAttachments, image]);
+    }
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setNewAttachments(newAttachments.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveExistingAttachment = async (attachmentId: string) => {
+    try {
+      await attachmentRepository.removeAttachment(attachmentId);
+      if (taskId) {
+        await historyRepository.addLogEntry({
+          taskId,
+          actionType: 'attachment_removed',
+          description: 'Attachment removed',
+        });
+      }
+      setExistingAttachments(
+        existingAttachments.filter((attachment) => attachment.id !== attachmentId)
+      );
+    } catch {
+      Alert.alert('Error', 'Failed to remove attachment');
+    }
+  };
+
+  const saveAttachments = async (taskId: string) => {
+    for (const image of newAttachments) {
+      await attachmentRepository.addAttachment({
+        taskId,
+        uri: image.uri,
+        fileName: image.fileName,
+        mimeType: image.mimeType,
+        size: image.size,
+      });
+    }
+  };
 
   const validateForm = (): boolean => {
     if (!title.trim()) {
@@ -98,12 +151,30 @@ export default function TaskFormScreen() {
         status,
       };
 
+      let savedTaskId = taskId;
       if (isEditMode && taskId) {
         await updateTask({ id: taskId, ...taskData });
+        if (newAttachments.length > 0) {
+          await historyRepository.addLogEntry({
+            taskId,
+            actionType: 'attachment_added',
+            description: `${newAttachments.length} attachment(s) added`,
+          });
+        }
         Alert.alert('Success', 'Task updated successfully');
       } else {
-        await createTask(taskData);
+        const task = await createTask(taskData);
+        savedTaskId = task.id;
+        await historyRepository.addLogEntry({
+          taskId: task.id,
+          actionType: 'attachment_added',
+          description: `${newAttachments.length} attachment(s) added`,
+        });
         Alert.alert('Success', 'Task created successfully');
+      }
+
+      if (savedTaskId) {
+        await saveAttachments(savedTaskId);
       }
 
       navigation.goBack();
@@ -218,6 +289,51 @@ export default function TaskFormScreen() {
           </View>
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.label}>Attachments</Text>
+          <TouchableOpacity style={styles.attachButton} onPress={handleAddAttachment}>
+            <Text style={styles.attachButtonText}>+ Add Image</Text>
+          </TouchableOpacity>
+
+          {existingAttachments.length > 0 && (
+            <View style={styles.attachmentSection}>
+              <Text style={styles.attachmentSectionLabel}>Existing</Text>
+              <View style={styles.previewContainer}>
+                {existingAttachments.map((attachment) => (
+                  <View key={attachment.id} style={styles.previewItem}>
+                    <Image source={{ uri: attachment.uri }} style={styles.previewImage} />
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveExistingAttachment(attachment.id)}
+                    >
+                      <Text style={styles.removeButtonText}>×</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {newAttachments.length > 0 && (
+            <View style={styles.attachmentSection}>
+              <Text style={styles.attachmentSectionLabel}>New</Text>
+              <View style={styles.previewContainer}>
+                {newAttachments.map((image, index) => (
+                  <View key={index} style={styles.previewItem}>
+                    <Image source={{ uri: image.uri }} style={styles.previewImage} />
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveAttachment(index)}
+                    >
+                      <Text style={styles.removeButtonText}>×</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
@@ -307,6 +423,58 @@ const styles = StyleSheet.create({
   statusButtonTextActive: {
     color: '#fff',
     fontWeight: '600',
+  },
+  attachButton: {
+    backgroundColor: '#e0e7ff',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  attachButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4f46e5',
+  },
+  attachmentSection: {
+    marginTop: 8,
+  },
+  attachmentSectionLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666',
+    marginBottom: 8,
+  },
+  previewContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  previewItem: {
+    position: 'relative',
+  },
+  previewImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
