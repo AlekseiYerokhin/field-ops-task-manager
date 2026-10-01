@@ -18,6 +18,8 @@ import * as taskRepository from '../storage/taskRepository';
 import * as attachmentRepository from '../storage/attachmentRepository';
 import * as historyRepository from '../storage/historyRepository';
 import { useFilePicker } from '../hooks';
+import { scheduleTaskNotification } from '../services';
+import { useSettingsStore } from '../store';
 import type { RootStackParamList } from '../navigation/types';
 import type { TaskStatus, TaskLocation, Attachment } from '../types';
 import type { PickedFile } from '../hooks';
@@ -37,6 +39,7 @@ export default function TaskFormScreen() {
   const route = useRoute<RoutePropType>();
   const { createTask, updateTask } = useTaskStore();
   const { pickImage, pickVideo, pickDocument } = useFilePicker();
+  const { demoMode } = useSettingsStore();
 
   const isEditMode = route.name === 'TaskEdit';
   const taskId = isEditMode ? (route.params as { taskId: string }).taskId : undefined;
@@ -182,6 +185,13 @@ export default function TaskFormScreen() {
             description: `${newAttachments.length} attachment(s) added`,
           });
         }
+        // Reschedule notification with updated due date
+        await scheduleTaskNotification(
+          taskId,
+          taskData.title,
+          new Date(taskData.dueDate),
+          demoMode
+        );
         Alert.alert('Success', 'Task updated successfully');
       } else {
         const task = await createTask(taskData);
@@ -191,6 +201,13 @@ export default function TaskFormScreen() {
           actionType: 'attachment_added',
           description: `${newAttachments.length} attachment(s) added`,
         });
+        // Schedule notification for new task
+        await scheduleTaskNotification(
+          task.id,
+          taskData.title,
+          new Date(taskData.dueDate),
+          demoMode
+        );
         Alert.alert('Success', 'Task created successfully');
       }
 

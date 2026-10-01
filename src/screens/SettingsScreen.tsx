@@ -1,7 +1,7 @@
 import { StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useThemeStore } from '../store';
+import { useThemeStore, useSettingsStore } from '../store';
 import type { RootStackParamList } from '../navigation/types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
@@ -11,6 +11,7 @@ const CANDIDATE_CODE = 'SA-RN-7429';
 export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { theme, toggleTheme } = useThemeStore();
+  const { demoMode, setDemoMode } = useSettingsStore();
 
   return (
     <View style={styles.container}>
@@ -26,6 +27,24 @@ export default function SettingsScreen() {
             accessibilityState={{ checked: theme === 'dark' }}
           />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Notifications</Text>
+        <View style={styles.settingItem}>
+          <Text style={styles.settingLabel}>Demo Mode (30-60s)</Text>
+          <Switch
+            value={demoMode}
+            onValueChange={setDemoMode}
+            accessibilityLabel="Toggle notification demo mode"
+            accessibilityRole="switch"
+            accessibilityState={{ checked: demoMode }}
+          />
+        </View>
+        <Text style={styles.settingDescription}>
+          When enabled, task notifications trigger ~45 seconds after saving, so you can verify the
+          flow without waiting 30 minutes.
+        </Text>
       </View>
 
       <View style={styles.section}>
@@ -90,6 +109,12 @@ const styles = StyleSheet.create({
   settingValue: {
     fontSize: 16,
     color: '#666',
+  },
+  settingDescription: {
+    fontSize: 13,
+    color: '#999',
+    marginTop: 4,
+    lineHeight: 18,
   },
   candidateCode: {
     fontSize: 18,
