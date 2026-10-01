@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTaskStore } from '../store/taskStore';
+import { AnimatedIn } from '../components';
 import type { RootStackParamList } from '../navigation/types';
 import type { Task, TaskStatus } from '../types';
 
@@ -53,32 +54,34 @@ function getStatusColor(status: string): string {
 
 function TaskCard({ task, onPress }: { task: Task; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.taskTitle} numberOfLines={2}>
-          {task.title}
-        </Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
-          <Text style={styles.statusText}>{task.status}</Text>
-        </View>
-      </View>
-
-      <View style={styles.cardBody}>
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Due:</Text>
-          <Text style={styles.infoValue}>
-            {formatDate(task.dueDate)} at {formatTime(task.dueDate)}
+    <AnimatedIn>
+      <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.taskTitle} numberOfLines={2}>
+            {task.title}
           </Text>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
+            <Text style={styles.statusText}>{task.status}</Text>
+          </View>
         </View>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Location:</Text>
-          <Text style={styles.infoValue} numberOfLines={1}>
-            {task.location.address}
-          </Text>
+        <View style={styles.cardBody}>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Due:</Text>
+            <Text style={styles.infoValue}>
+              {formatDate(task.dueDate)} at {formatTime(task.dueDate)}
+            </Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Location:</Text>
+            <Text style={styles.infoValue} numberOfLines={1}>
+              {task.location.address}
+            </Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </AnimatedIn>
   );
 }
 

@@ -16,6 +16,7 @@ import { useTaskStore } from '../store/taskStore';
 import * as taskRepository from '../storage/taskRepository';
 import * as historyRepository from '../storage/historyRepository';
 import * as attachmentRepository from '../storage/attachmentRepository';
+import { AnimatedStatusBadge } from '../components';
 import type { RootStackParamList } from '../navigation/types';
 import type { Task, HistoryLog, TaskStatus, Attachment } from '../types';
 
@@ -159,9 +160,7 @@ export default function TaskDetailScreen() {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{task.title}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
-          <Text style={styles.statusText}>{task.status}</Text>
-        </View>
+        <AnimatedStatusBadge status={task.status} color={getStatusColor(task.status)} />
       </View>
 
       <View style={styles.section}>
