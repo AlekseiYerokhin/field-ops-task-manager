@@ -26,6 +26,13 @@ jest.mock('expo-document-picker', () => ({
   getDocumentAsync: jest.fn(),
 }));
 
+jest.mock('react-native-maps', () => ({
+  __esModule: true,
+  default: 'MapView',
+  Marker: 'Marker',
+  PROVIDER_DEFAULT: 'default',
+}));
+
 jest.mock('expo-notifications', () => ({
   setNotificationChannelAsync: jest.fn(),
   getPermissionsAsync: jest.fn(),

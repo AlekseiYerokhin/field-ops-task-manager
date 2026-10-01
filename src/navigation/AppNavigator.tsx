@@ -7,6 +7,7 @@ import {
   TaskFormScreen,
   SettingsScreen,
   HistoryScreen,
+  MapScreen,
 } from '../screens';
 import type { RootStackParamList } from './types';
 
@@ -41,6 +42,7 @@ export default function AppNavigator() {
         <Stack.Screen name="TaskEdit" component={TaskFormScreen} options={{ title: 'Edit Task' }} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
         <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'History' }} />
+        <Stack.Screen name="Map" component={MapScreen} options={{ title: 'Map' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
