@@ -33,6 +33,11 @@ jest.mock('react-native-maps', () => ({
   PROVIDER_DEFAULT: 'default',
 }));
 
+jest.mock('@react-native-community/netinfo', () => ({
+  addEventListener: jest.fn(() => jest.fn()),
+  fetch: jest.fn().mockResolvedValue({ isConnected: true }),
+}));
+
 jest.mock('expo-notifications', () => ({
   setNotificationChannelAsync: jest.fn(),
   getPermissionsAsync: jest.fn(),

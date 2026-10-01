@@ -1,5 +1,5 @@
 import { getDatabase } from './database';
-import { Task, CreateTaskInput, UpdateTaskInput } from '../types';
+import { Task, CreateTaskInput, UpdateTaskInput, SyncStatus } from '../types';
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -104,6 +104,32 @@ export async function deleteTask(id: string): Promise<boolean> {
   const db = await getDatabase();
   const result = await db.runAsync('DELETE FROM tasks WHERE id = ?', [id]);
   return result.changes > 0;
+}
+
+export async function updateTaskSyncStatus(id: string, syncStatus: SyncStatus): Promise<boolean> {
+  const db = await getDatabase();
+  const result = await db.runAsync('UPDATE tasks SET syncStatus = ? WHERE id = ?', [
+    syncStatus,
+    id,
+  ]);
+  return result.changes > 0;
+}
+
+export async function getPendingTasks(): Promise<Task[]> {
+  const db = await getDatabase();
+  const results = await db.getAllAsync<any>(
+    "SELECT * FROM tasks WHERE syncStatus = 'pending' ORDER BY updatedAt ASC"
+  );
+  return results.map(mapRowToTask);
+}
+
+export async function getTasksBySyncStatus(syncStatus: SyncStatus): Promise<Task[]> {
+  const db = await getDatabase();
+  const results = await db.getAllAsync<any>(
+    'SELECT * FROM tasks WHERE syncStatus = ? ORDER BY updatedAt ASC',
+    [syncStatus]
+  );
+  return results.map(mapRowToTask);
 }
 
 function mapRowToTask(row: any): Task {
