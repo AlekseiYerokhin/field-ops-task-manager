@@ -1,4 +1,13 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+  Modal,
+} from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -6,8 +15,9 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTaskStore } from '../store/taskStore';
 import * as taskRepository from '../storage/taskRepository';
 import * as historyRepository from '../storage/historyRepository';
+import * as attachmentRepository from '../storage/attachmentRepository';
 import type { RootStackParamList } from '../navigation/types';
-import type { Task, HistoryLog, TaskStatus } from '../types';
+import type { Task, HistoryLog, TaskStatus, Attachment } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskDetail'>;
 type RoutePropType = RouteProp<RootStackParamList, 'TaskDetail'>;
@@ -53,15 +63,22 @@ export default function TaskDetailScreen() {
 
   const [task, setTask] = useState<Task | null>(null);
   const [history, setHistory] = useState<HistoryLog[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fullImageUri, setFullImageUri] = useState<string | null>(null);
+  const [unavailableAttachments, setUnavailableAttachments] = useState<Set<string>>(new Set());
 
   const loadTaskData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const taskData = await taskRepository.getTask(taskId);
-      const historyData = await historyRepository.getLogsByTask(taskId);
+      const [taskData, historyData, attachmentData] = await Promise.all([
+        taskRepository.getTask(taskId),
+        historyRepository.getLogsByTask(taskId),
+        attachmentRepository.getAttachmentsByTask(taskId),
+      ]);
       setTask(taskData);
       setHistory(historyData);
+      setAttachments(attachmentData);
     } catch (error) {
       console.error('Failed to load task data:', error);
     } finally {
@@ -118,6 +135,10 @@ export default function TaskDetailScreen() {
     ]);
   };
 
+  const handleImageError = (attachmentId: string) => {
+    setUnavailableAttachments((prev) => new Set(prev).add(attachmentId));
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -166,9 +187,50 @@ export default function TaskDetailScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Attachments</Text>
-        <Text style={styles.infoText}>0 attachments</Text>
+        <Text style={styles.sectionTitle}>Attachments ({attachments.length})</Text>
+        {attachments.length === 0 ? (
+          <Text style={styles.emptyText}>No attachments</Text>
+        ) : (
+          <View style={styles.attachmentGrid}>
+            {attachments.map((attachment) =>
+              unavailableAttachments.has(attachment.id) ? (
+                <View key={attachment.id} style={styles.attachmentItem}>
+                  <Text style={styles.unavailableText}>File Unavailable</Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  key={attachment.id}
+                  style={styles.attachmentItem}
+                  onPress={() => setFullImageUri(attachment.uri)}
+                >
+                  <Image
+                    source={{ uri: attachment.uri }}
+                    style={styles.attachmentImage}
+                    onError={() => handleImageError(attachment.id)}
+                  />
+                </TouchableOpacity>
+              )
+            )}
+          </View>
+        )}
       </View>
+
+      <Modal
+        visible={fullImageUri !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setFullImageUri(null)}
+      >
+        <TouchableOpacity
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPress={() => setFullImageUri(null)}
+        >
+          {fullImageUri && (
+            <Image source={{ uri: fullImageUri }} style={styles.modalImage} resizeMode="contain" />
+          )}
+        </TouchableOpacity>
+      </Modal>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>History</Text>
@@ -263,6 +325,45 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 16,
     color: '#374151',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  attachmentGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  attachmentItem: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  attachmentImage: {
+    width: '100%',
+    height: '100%',
+  },
+  unavailableText: {
+    fontSize: 11,
+    color: '#999',
+    textAlign: 'center',
+    paddingHorizontal: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: '90%',
+    height: '80%',
   },
   coordinatesText: {
     fontSize: 14,

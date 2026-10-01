@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react-nativ
 import TaskDetailScreen from './TaskDetailScreen';
 import * as taskRepository from '../storage/taskRepository';
 import * as historyRepository from '../storage/historyRepository';
+import * as attachmentRepository from '../storage/attachmentRepository';
 import { useTaskStore } from '../store/taskStore';
 
 // Mock navigation
@@ -24,12 +25,14 @@ jest.mock('@react-navigation/native', () => ({
 // Mock repositories
 jest.mock('../storage/taskRepository');
 jest.mock('../storage/historyRepository');
+jest.mock('../storage/attachmentRepository');
 
 // Mock the task store
 jest.mock('../store/taskStore');
 
 const mockedTaskRepository = taskRepository as jest.Mocked<typeof taskRepository>;
 const mockedHistoryRepository = historyRepository as jest.Mocked<typeof historyRepository>;
+const mockedAttachmentRepository = attachmentRepository as jest.Mocked<typeof attachmentRepository>;
 const mockedUseTaskStore = useTaskStore as jest.MockedFunction<typeof useTaskStore>;
 
 describe('TaskDetailScreen', () => {
@@ -62,6 +65,7 @@ describe('TaskDetailScreen', () => {
 
     mockedTaskRepository.getTask.mockResolvedValue(mockTask);
     mockedHistoryRepository.getLogsByTask.mockResolvedValue(mockHistory);
+    mockedAttachmentRepository.getAttachmentsByTask.mockResolvedValue([]);
 
     mockedUseTaskStore.mockReturnValue({
       tasks: [],
@@ -119,7 +123,8 @@ describe('TaskDetailScreen', () => {
     await render(<TaskDetailScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('0 attachments')).toBeTruthy();
+      expect(screen.getByText('Attachments (0)')).toBeTruthy();
+      expect(screen.getByText('No attachments')).toBeTruthy();
     });
   });
 
@@ -183,7 +188,7 @@ describe('TaskDetailScreen', () => {
       expect(screen.getByText('Description')).toBeTruthy();
       expect(screen.getByText('Due Date')).toBeTruthy();
       expect(screen.getByText('Location')).toBeTruthy();
-      expect(screen.getByText('Attachments')).toBeTruthy();
+      expect(screen.getByText('Attachments (0)')).toBeTruthy();
       expect(screen.getByText('History')).toBeTruthy();
     });
   });
