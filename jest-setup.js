@@ -44,5 +44,7 @@ jest.mock('react-native', () => {
     Switch: 'Switch',
     RefreshControl: 'RefreshControl',
     ActivityIndicator: 'ActivityIndicator',
+    Image: 'Image',
+    Modal: 'Modal',
   };
 });
