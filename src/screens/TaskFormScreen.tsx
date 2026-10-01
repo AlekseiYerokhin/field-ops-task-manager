@@ -17,19 +17,26 @@ import { useTaskStore } from '../store/taskStore';
 import * as taskRepository from '../storage/taskRepository';
 import * as attachmentRepository from '../storage/attachmentRepository';
 import * as historyRepository from '../storage/historyRepository';
-import { useImagePicker } from '../hooks';
+import { useFilePicker } from '../hooks';
 import type { RootStackParamList } from '../navigation/types';
 import type { TaskStatus, TaskLocation, Attachment } from '../types';
-import type { PickedImage } from '../hooks';
+import type { PickedFile } from '../hooks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TaskCreate' | 'TaskEdit'>;
 type RoutePropType = RouteProp<RootStackParamList, 'TaskCreate' | 'TaskEdit'>;
+
+function getFileTypeLabel(mimeType: string): string {
+  if (mimeType.startsWith('video/')) return '🎬';
+  if (mimeType === 'application/pdf') return '📄';
+  if (mimeType.startsWith('text/')) return '📝';
+  return '📎';
+}
 
 export default function TaskFormScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RoutePropType>();
   const { createTask, updateTask } = useTaskStore();
-  const { pickImage } = useImagePicker();
+  const { pickImage, pickVideo, pickDocument } = useFilePicker();
 
   const isEditMode = route.name === 'TaskEdit';
   const taskId = isEditMode ? (route.params as { taskId: string }).taskId : undefined;
@@ -41,7 +48,7 @@ export default function TaskFormScreen() {
   const [locationAddress, setLocationAddress] = useState('');
   const [status, setStatus] = useState<TaskStatus>('New');
   const [isLoading, setIsLoading] = useState(false);
-  const [newAttachments, setNewAttachments] = useState<PickedImage[]>([]);
+  const [newAttachments, setNewAttachments] = useState<PickedFile[]>([]);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>([]);
 
   const loadTask = useCallback(async () => {
@@ -77,6 +84,20 @@ export default function TaskFormScreen() {
     const image = await pickImage();
     if (image) {
       setNewAttachments([...newAttachments, image]);
+    }
+  };
+
+  const handleAddVideo = async () => {
+    const video = await pickVideo();
+    if (video) {
+      setNewAttachments([...newAttachments, video]);
+    }
+  };
+
+  const handleAddDocument = async () => {
+    const document = await pickDocument();
+    if (document) {
+      setNewAttachments([...newAttachments, document]);
     }
   };
 
@@ -291,9 +312,17 @@ export default function TaskFormScreen() {
 
         <View style={styles.field}>
           <Text style={styles.label}>Attachments</Text>
-          <TouchableOpacity style={styles.attachButton} onPress={handleAddAttachment}>
-            <Text style={styles.attachButtonText}>+ Add Image</Text>
-          </TouchableOpacity>
+          <View style={styles.attachButtonRow}>
+            <TouchableOpacity style={styles.attachButton} onPress={handleAddAttachment}>
+              <Text style={styles.attachButtonText}>+ Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.attachButton} onPress={handleAddVideo}>
+              <Text style={styles.attachButtonText}>+ Video</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.attachButton} onPress={handleAddDocument}>
+              <Text style={styles.attachButtonText}>+ Document</Text>
+            </TouchableOpacity>
+          </View>
 
           {existingAttachments.length > 0 && (
             <View style={styles.attachmentSection}>
@@ -301,7 +330,15 @@ export default function TaskFormScreen() {
               <View style={styles.previewContainer}>
                 {existingAttachments.map((attachment) => (
                   <View key={attachment.id} style={styles.previewItem}>
-                    <Image source={{ uri: attachment.uri }} style={styles.previewImage} />
+                    {attachment.mimeType.startsWith('image/') ? (
+                      <Image source={{ uri: attachment.uri }} style={styles.previewImage} />
+                    ) : (
+                      <View style={styles.previewFileBox}>
+                        <Text style={styles.previewFileLabel}>
+                          {getFileTypeLabel(attachment.mimeType)}
+                        </Text>
+                      </View>
+                    )}
                     <TouchableOpacity
                       style={styles.removeButton}
                       onPress={() => handleRemoveExistingAttachment(attachment.id)}
@@ -318,9 +355,17 @@ export default function TaskFormScreen() {
             <View style={styles.attachmentSection}>
               <Text style={styles.attachmentSectionLabel}>New</Text>
               <View style={styles.previewContainer}>
-                {newAttachments.map((image, index) => (
+                {newAttachments.map((file, index) => (
                   <View key={index} style={styles.previewItem}>
-                    <Image source={{ uri: image.uri }} style={styles.previewImage} />
+                    {file.mimeType.startsWith('image/') ? (
+                      <Image source={{ uri: file.uri }} style={styles.previewImage} />
+                    ) : (
+                      <View style={styles.previewFileBox}>
+                        <Text style={styles.previewFileLabel}>
+                          {getFileTypeLabel(file.mimeType)}
+                        </Text>
+                      </View>
+                    )}
                     <TouchableOpacity
                       style={styles.removeButton}
                       onPress={() => handleRemoveAttachment(index)}
@@ -430,11 +475,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginBottom: 8,
+    flex: 1,
+  },
+  attachButtonRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
   attachButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#4f46e5',
+  },
+  previewFileBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewFileLabel: {
+    fontSize: 28,
   },
   attachmentSection: {
     marginTop: 8,

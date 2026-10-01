@@ -1,2 +1,2 @@
-export { useImagePicker } from './useImagePicker';
-export type { PickedImage } from './useImagePicker';
+export { useFilePicker } from './useFilePicker';
+export type { PickedFile } from './useFilePicker';
