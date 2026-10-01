@@ -18,13 +18,24 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Appearance</Text>
         <View style={styles.settingItem}>
           <Text style={styles.settingLabel}>Dark Mode</Text>
-          <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
+          <Switch
+            value={theme === 'dark'}
+            onValueChange={toggleTheme}
+            accessibilityLabel="Toggle dark mode"
+            accessibilityRole="switch"
+            accessibilityState={{ checked: theme === 'dark' }}
+          />
         </View>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Navigation</Text>
-        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('History')}>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate('History')}
+          accessibilityRole="button"
+          accessibilityLabel="View history"
+        >
           <Text style={styles.settingLabel}>View History</Text>
           <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
