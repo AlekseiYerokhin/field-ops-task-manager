@@ -1,9 +1,15 @@
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeStore } from '../store';
+import type { RootStackParamList } from '../navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 const CANDIDATE_CODE = 'SA-RN-7429';
 
 export default function SettingsScreen() {
+  const navigation = useNavigation<NavigationProp>();
   const { theme, toggleTheme } = useThemeStore();
 
   return (
@@ -14,6 +20,14 @@ export default function SettingsScreen() {
           <Text style={styles.settingLabel}>Dark Mode</Text>
           <Switch value={theme === 'dark'} onValueChange={toggleTheme} />
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Navigation</Text>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('History')}>
+          <Text style={styles.settingLabel}>View History</Text>
+          <Text style={styles.chevron}>›</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
@@ -70,5 +84,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#3b82f6',
+  },
+  chevron: {
+    fontSize: 24,
+    color: '#999',
   },
 });

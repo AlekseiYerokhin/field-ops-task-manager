@@ -36,5 +36,6 @@ jest.mock('react-native', () => {
     FlatList: 'FlatList',
     Switch: 'Switch',
     RefreshControl: 'RefreshControl',
+    ActivityIndicator: 'ActivityIndicator',
   };
 });
